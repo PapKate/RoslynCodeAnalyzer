@@ -19,8 +19,8 @@ namespace RoslynCodeAnalyzer
         static void Main(string[] args)
         {
 
-            // C:\Users\PapKate\Documents\PersonalProjects\C#\RoslynCodeAnalyzer\RoslynCodeAnalyzer\CommentsData.cs
-            var implementationFilePath = @"C:\Users\PapKate\Documents\PersonalProjects\C#\RoslynCodeAnalyzer\RoslynCodeAnalyzer\CommentsData.cs";
+            // C:\Users\PapKate\Documents\PersonalProjects\C#\RoslynCodeAnalyzer\RoslynCodeAnalyzer\MethodCommentInformation.cs
+            var implementationFilePath = @"C:\Users\PapKate\Documents\PersonalProjects\C#\RoslynCodeAnalyzer\RoslynCodeAnalyzer\MethodCommentInformation.cs";
 
             var implementation = File.ReadAllText(implementationFilePath);
 
@@ -35,7 +35,7 @@ namespace RoslynCodeAnalyzer
             {
                 if (member is PropertyDeclarationSyntax property)
                 {
-                   
+                    var clean = GetSummaryComments(property, property.Identifier, "property");
                 }
 
                 // If the member is of type MethodDeclarationSyntax...
@@ -140,7 +140,13 @@ namespace RoslynCodeAnalyzer
             Console.ReadLine();
         }
 
-        public void GetSummaryComments(MemberDeclarationSyntax member, SyntaxToken identifier)
+        /// <summary>
+        /// Gets the summary comments
+        /// </summary>
+        /// <param name="member">The member</param>
+        /// <param name="identifier">The member's name </param>
+        /// <param name="declarationSyntaxType">Whether a method or a property</param>
+        public static string GetSummaryComments(MemberDeclarationSyntax member, SyntaxToken identifier, string declarationSyntaxType)
         {
             // Gets the comments above the method
             var xmlCommentTrivia = member.GetLeadingTrivia().FirstOrDefault(x => x.Kind() == SyntaxKind.SingleLineDocumentationCommentTrivia);
@@ -149,9 +155,9 @@ namespace RoslynCodeAnalyzer
             if (xmlCommentTrivia == null || xmlCommentTrivia.Token == None)
             {
                 // Prints message to the output console
-                Debug.WriteLine($"The method with name: {identifier} does NOT have any comments!");
+                Debug.WriteLine($"The {declarationSyntaxType} with name: {identifier} does NOT have any comments!");
                 // Returns
-                //continue;
+                return null;
             }
 
             // Gets the comments' xml structure
@@ -166,19 +172,33 @@ namespace RoslynCodeAnalyzer
             if (summary == null)
             {
                 // Prints message to the output console
-                Debug.WriteLine($"The method with name: {identifier}  does NOT have any <summary> comments </summary>");
+                Debug.WriteLine($"The {declarationSyntaxType} with name: {identifier}  does NOT have any <summary> comments </summary>");
                 // Returns
-                //continue;
+                return null;
             }
 
             // Gets the text inside the <summary> </sumarry> area
-            var summaryComments = summary.ChildNodes().OfType<XmlTextSyntax>().FirstOrDefault().GetText();
+            var summaryComments = summary.Content;
+
+            var seeCref = summary.ChildNodes().OfType<XmlEmptyElementSyntax>().ToList();
+
+            var summaryCommentParameters = new List<ParameterCommentInformation>();
+
+            foreach (var cref in seeCref)
+            {
+                var test = cref.ChildNodes().OfType<XmlCrefAttributeSyntax>().FirstOrDefault()
+                    .ChildNodes().OfType<NameMemberCrefSyntax>().FirstOrDefault()
+                    .ChildNodes().OfType<IdentifierNameSyntax>().FirstOrDefault()
+                    .Identifier;
+            }
 
             // Filters the string and removes the specified strings
             var clean = HelperMethods.FilterString(summaryComments.ToString(), "\r", "\n", "///");
 
             // Replaces the multiple spaces with a single one
             clean = HelperMethods.CleanStringFromExtraSpaces(clean);
+
+            return clean;
         }
     }
 

@@ -4,37 +4,37 @@
         <name>RoslynCodeAnalyzer</name>
     </assembly>
     <members>
-        <member name="T:RoslynCodeAnalyzer.CommentsData">
+        <member name="T:RoslynCodeAnalyzer.MethodCommentInformation">
             <summary>
-            Class comments
+            Provides information about the documentation comments of a method
             </summary>
         </member>
-        <member name="P:RoslynCodeAnalyzer.CommentsData.MethodName">
+        <member name="P:RoslynCodeAnalyzer.MethodCommentInformation.MethodName">
             <summary>
             The method's name
             </summary>
         </member>
-        <member name="P:RoslynCodeAnalyzer.CommentsData.SummaryComments">
+        <member name="P:RoslynCodeAnalyzer.MethodCommentInformation.SummaryComments">
             <summary>
             The summary comments
             </summary>
         </member>
-        <member name="P:RoslynCodeAnalyzer.CommentsData.SummaryCommentParameters">
+        <member name="P:RoslynCodeAnalyzer.MethodCommentInformation.SummaryCommentParameters">
             <summary>
-            The parameters that are used in the <see cref="P:RoslynCodeAnalyzer.CommentsData.SummaryComments"/>
+            The parameters that are used in the <see cref="P:RoslynCodeAnalyzer.MethodCommentInformation.SummaryComments"/>
             </summary>
         </member>
-        <member name="P:RoslynCodeAnalyzer.CommentsData.Parameters">
+        <member name="P:RoslynCodeAnalyzer.MethodCommentInformation.Parameters">
             <summary>
             The parameters' data
             </summary>
         </member>
-        <member name="M:RoslynCodeAnalyzer.CommentsData.#ctor">
+        <member name="M:RoslynCodeAnalyzer.MethodCommentInformation.#ctor">
             <summary>
             Default constructor
             </summary>
         </member>
-        <member name="M:RoslynCodeAnalyzer.CommentsData.CreateCommentsData(System.String,System.String,System.Int32,System.Collections.Generic.IEnumerable{RoslynCodeAnalyzer.ParameterData})">
+        <member name="M:RoslynCodeAnalyzer.MethodCommentInformation.CreateCommentsData(System.String,System.String,System.Int32,System.Collections.Generic.IEnumerable{RoslynCodeAnalyzer.ParameterCommentInformation})">
             <summary>
             Testing the specified <paramref name="comments"/>
             </summary>
@@ -44,18 +44,18 @@
             <param name="oof">Aaaaaaaa</param>
             <param name="parameterDatas">ola kala OPA</param>
         </member>
-        <member name="M:RoslynCodeAnalyzer.CommentsData.SetCommentsData(System.String,System.String,System.Int32,System.Collections.Generic.IEnumerable{RoslynCodeAnalyzer.ParameterData})">
+        <member name="M:RoslynCodeAnalyzer.MethodCommentInformation.SetCommentsData(System.String,System.String,System.Int32,System.Collections.Generic.IEnumerable{RoslynCodeAnalyzer.ParameterCommentInformation})">
             <param name="comments"></param>
             <param name="test"></param>
             <param name="oof"></param>
             <param name="parameterDatas"></param>
         </member>
-        <member name="M:RoslynCodeAnalyzer.CommentsData.DeleteCommentsData(System.String,System.String,System.Int32,System.Collections.Generic.IEnumerable{RoslynCodeAnalyzer.ParameterData})">
+        <member name="M:RoslynCodeAnalyzer.MethodCommentInformation.DeleteCommentsData(System.String,System.String,System.Int32,System.Collections.Generic.IEnumerable{RoslynCodeAnalyzer.ParameterCommentInformation})">
             <summary>
             dwdwdwdw
             </summary>
         </member>
-        <member name="M:RoslynCodeAnalyzer.CommentsData.DroseraComments(System.String,System.String,System.Int32,System.Collections.Generic.IEnumerable{RoslynCodeAnalyzer.ParameterData})">
+        <member name="M:RoslynCodeAnalyzer.MethodCommentInformation.DroseraComments(System.String,System.String,System.Int32,System.Collections.Generic.IEnumerable{RoslynCodeAnalyzer.ParameterCommentInformation})">
             <summary>
             The comments datatatatatata
             </summary>
@@ -84,35 +84,38 @@
             <param name="value">The string</param>
             <returns></returns>
         </member>
-        <member name="T:RoslynCodeAnalyzer.ParameterData">
+        <member name="T:RoslynCodeAnalyzer.ParameterCommentInformation">
             <summary>
-            Represents a parameter's data
+            Provides information about the document comments of a parameter of a method
             </summary>
         </member>
-        <member name="P:RoslynCodeAnalyzer.ParameterData.Name">
+        <member name="P:RoslynCodeAnalyzer.ParameterCommentInformation.Name">
             <summary>
             The parameter's name
             </summary>
         </member>
-        <member name="P:RoslynCodeAnalyzer.ParameterData.Comments">
+        <member name="P:RoslynCodeAnalyzer.ParameterCommentInformation.Comments">
             <summary>
             The parameter's description
             </summary>
         </member>
-        <member name="P:RoslynCodeAnalyzer.ParameterData.CommentParameters">
+        <member name="P:RoslynCodeAnalyzer.ParameterCommentInformation.CommentParameters">
             <summary>
-            The parameters that are used in the <see cref="P:RoslynCodeAnalyzer.ParameterData.Comments"/>
+            The parameters that are used in the <see cref="P:RoslynCodeAnalyzer.ParameterCommentInformation.Comments"/>
             </summary>
         </member>
-        <member name="P:RoslynCodeAnalyzer.ParameterData.Color">
-            <summary>
-            The parameter's color
-            </summary>
-        </member>
-        <member name="M:RoslynCodeAnalyzer.ParameterData.#ctor">
+        <member name="M:RoslynCodeAnalyzer.ParameterCommentInformation.#ctor">
             <summary>
             Default constructor
             </summary>
+        </member>
+        <member name="M:RoslynCodeAnalyzer.Program.GetSummaryComments(Microsoft.CodeAnalysis.CSharp.Syntax.MemberDeclarationSyntax,Microsoft.CodeAnalysis.SyntaxToken,System.String)">
+            <summary>
+            Gets the summary comments
+            </summary>
+            <param name="member">The member</param>
+            <param name="identifier">The member's name </param>
+            <param name="declarationSyntaxType">Whether a method or a property</param>
         </member>
     </members>
 </doc>
