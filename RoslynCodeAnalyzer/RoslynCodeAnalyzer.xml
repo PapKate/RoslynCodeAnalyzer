@@ -1,0 +1,118 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>RoslynCodeAnalyzer</name>
+    </assembly>
+    <members>
+        <member name="T:RoslynCodeAnalyzer.CommentsData">
+            <summary>
+            Class comments
+            </summary>
+        </member>
+        <member name="P:RoslynCodeAnalyzer.CommentsData.MethodName">
+            <summary>
+            The method's name
+            </summary>
+        </member>
+        <member name="P:RoslynCodeAnalyzer.CommentsData.SummaryComments">
+            <summary>
+            The summary comments
+            </summary>
+        </member>
+        <member name="P:RoslynCodeAnalyzer.CommentsData.SummaryCommentParameters">
+            <summary>
+            The parameters that are used in the <see cref="P:RoslynCodeAnalyzer.CommentsData.SummaryComments"/>
+            </summary>
+        </member>
+        <member name="P:RoslynCodeAnalyzer.CommentsData.Parameters">
+            <summary>
+            The parameters' data
+            </summary>
+        </member>
+        <member name="M:RoslynCodeAnalyzer.CommentsData.#ctor">
+            <summary>
+            Default constructor
+            </summary>
+        </member>
+        <member name="M:RoslynCodeAnalyzer.CommentsData.CreateCommentsData(System.String,System.String,System.Int32,System.Collections.Generic.IEnumerable{RoslynCodeAnalyzer.ParameterData})">
+            <summary>
+            Testing the specified <paramref name="comments"/>
+            </summary>
+            <param name="comments">Thee comments <paramref name="oof"/> <paramref name="parameterDatas"/></param>
+            <param name="test">The test rgdrg
+            drgrdgdrgdrgt</param>
+            <param name="oof">Aaaaaaaa</param>
+            <param name="parameterDatas">ola kala OPA</param>
+        </member>
+        <member name="M:RoslynCodeAnalyzer.CommentsData.SetCommentsData(System.String,System.String,System.Int32,System.Collections.Generic.IEnumerable{RoslynCodeAnalyzer.ParameterData})">
+            <param name="comments"></param>
+            <param name="test"></param>
+            <param name="oof"></param>
+            <param name="parameterDatas"></param>
+        </member>
+        <member name="M:RoslynCodeAnalyzer.CommentsData.DeleteCommentsData(System.String,System.String,System.Int32,System.Collections.Generic.IEnumerable{RoslynCodeAnalyzer.ParameterData})">
+            <summary>
+            dwdwdwdw
+            </summary>
+        </member>
+        <member name="M:RoslynCodeAnalyzer.CommentsData.DroseraComments(System.String,System.String,System.Int32,System.Collections.Generic.IEnumerable{RoslynCodeAnalyzer.ParameterData})">
+            <summary>
+            The comments datatatatatata
+            </summary>
+            <param name="comments">Thee comments <paramref name="oof"/> <paramref name="parameterDatas"/></param>
+            <param name="test">The test rgdrg
+            drgrdgdrgdrgt</param>
+            <param name="oof">Aaaaaaaa</param>
+            <param name="parameterDatas">ola kala OPA</param>
+        </member>
+        <member name="T:RoslynCodeAnalyzer.HelperMethods">
+            <summary>
+            A class with helper methods
+            </summary>
+        </member>
+        <member name="M:RoslynCodeAnalyzer.HelperMethods.FilterString(System.String,System.String[])">
+            <summary>
+            Filters a string and replaces the specified strings with <see cref="F:System.String.Empty"/>
+            </summary>
+            <param name="value">The string</param>
+            <param name="stringsToReplace">The string values to be replaced</param>
+        </member>
+        <member name="M:RoslynCodeAnalyzer.HelperMethods.CleanStringFromExtraSpaces(System.String)">
+            <summary>
+            Removes extra spaces and replaces them with a single space
+            </summary>
+            <param name="value">The string</param>
+            <returns></returns>
+        </member>
+        <member name="T:RoslynCodeAnalyzer.ParameterData">
+            <summary>
+            Represents a parameter's data
+            </summary>
+        </member>
+        <member name="P:RoslynCodeAnalyzer.ParameterData.Name">
+            <summary>
+            The parameter's name
+            </summary>
+        </member>
+        <member name="P:RoslynCodeAnalyzer.ParameterData.Comments">
+            <summary>
+            The parameter's description
+            </summary>
+        </member>
+        <member name="P:RoslynCodeAnalyzer.ParameterData.CommentParameters">
+            <summary>
+            The parameters that are used in the <see cref="P:RoslynCodeAnalyzer.ParameterData.Comments"/>
+            </summary>
+        </member>
+        <member name="P:RoslynCodeAnalyzer.ParameterData.Color">
+            <summary>
+            The parameter's color
+            </summary>
+        </member>
+        <member name="M:RoslynCodeAnalyzer.ParameterData.#ctor">
+            <summary>
+            Default constructor
+            </summary>
+        </member>
+    </members>
+</doc>
