@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace RoslynCodeAnalyzer
 {
     /// <summary>
-    /// Provides information about the document comments of a parameter of a method
+    /// Provides information about the document comments of a property
     /// </summary>
-    public class ParameterCommentInformation    
+    public class PropertyCommentInformation
     {
         #region Public Properties
 
@@ -21,9 +24,9 @@ namespace RoslynCodeAnalyzer
         public string Comments { get; set; }
 
         /// <summary>
-        /// The parameters that are used in the <see cref="Comments"/>
+        /// The cref that are used in the <see cref="Comments"/>
         /// </summary>
-        public IEnumerable<ParameterCommentInformation> CommentParameters { get; set; }
+        public IEnumerable<ParameterCommentInformation> CommentCref { get; set; }
 
         #endregion
 
@@ -32,11 +35,11 @@ namespace RoslynCodeAnalyzer
         /// <summary>
         /// Default constructor
         /// </summary>
-        public ParameterCommentInformation()
+        public PropertyCommentInformation()
         {
 
         }
 
-	    #endregion
+        #endregion
     }
 }

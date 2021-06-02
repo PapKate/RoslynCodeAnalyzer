@@ -4,6 +4,11 @@
         <name>RoslynCodeAnalyzer</name>
     </assembly>
     <members>
+        <member name="T:RoslynCodeAnalyzer.Constants">
+            <summary>
+            The constants for the app
+            </summary>
+        </member>
         <member name="T:RoslynCodeAnalyzer.MethodCommentInformation">
             <summary>
             Provides information about the documentation comments of a method
@@ -21,7 +26,7 @@
         </member>
         <member name="P:RoslynCodeAnalyzer.MethodCommentInformation.SummaryCommentParameters">
             <summary>
-            The parameters that are used in the <see cref="P:RoslynCodeAnalyzer.MethodCommentInformation.SummaryComments"/>
+            The parameters that are used in the <see cref="P:RoslynCodeAnalyzer.MethodCommentInformation.SummaryComments"/> <see cref="P:RoslynCodeAnalyzer.MethodCommentInformation.MethodName"/>
             </summary>
         </member>
         <member name="P:RoslynCodeAnalyzer.MethodCommentInformation.Parameters">
@@ -36,7 +41,7 @@
         </member>
         <member name="M:RoslynCodeAnalyzer.MethodCommentInformation.CreateCommentsData(System.String,System.String,System.Int32,System.Collections.Generic.IEnumerable{RoslynCodeAnalyzer.ParameterCommentInformation})">
             <summary>
-            Testing the specified <paramref name="comments"/>
+            Testing the specified <paramref name="comments"/> yes <see cref="P:RoslynCodeAnalyzer.MethodCommentInformation.SummaryComments"/>
             </summary>
             <param name="comments">Thee comments <paramref name="oof"/> <paramref name="parameterDatas"/></param>
             <param name="test">The test rgdrg
@@ -109,13 +114,24 @@
             Default constructor
             </summary>
         </member>
-        <member name="M:RoslynCodeAnalyzer.Program.GetSummaryComments(Microsoft.CodeAnalysis.CSharp.Syntax.MemberDeclarationSyntax,Microsoft.CodeAnalysis.SyntaxToken,System.String)">
+        <member name="T:RoslynCodeAnalyzer.Program">
+            <summary>
+            The main class
+            </summary>
+        </member>
+        <member name="P:RoslynCodeAnalyzer.Program.None">
+            <summary>
+            The none syntax token
+            </summary>
+        </member>
+        <member name="M:RoslynCodeAnalyzer.Program.GetSummaryComments(Microsoft.CodeAnalysis.CSharp.Syntax.MemberDeclarationSyntax,Microsoft.CodeAnalysis.SyntaxToken,System.String,RoslynCodeAnalyzer.ParameterCommentInformation)">
             <summary>
             Gets the summary comments
             </summary>
             <param name="member">The member</param>
             <param name="identifier">The member's name </param>
             <param name="declarationSyntaxType">Whether a method or a property</param>
+            <param name="parameterCommentInformation"></param>
         </member>
     </members>
 </doc>

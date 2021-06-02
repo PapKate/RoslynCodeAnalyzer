@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.CodeAnalysis;
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -45,7 +47,28 @@ namespace RoslynCodeAnalyzer
             // Returns the edited value
             return value;
         }
-        
+
+        #region Errors
+
+        /// <summary>
+        /// Prints message to the output console
+        /// </summary>
+        /// <param name="identifier">The identifier</param>
+        /// <returns></returns>
+        public static string MissingParamCommentsOutputError(SyntaxToken identifier)
+            => $"The method with name: {identifier} does NOT have any <param> comments </param> for its parameters";
+
+        /// <summary>
+        /// Prints message to the output console
+        /// </summary>
+        /// <param name="identifier">The identifier</param>
+        /// <param name="declarationSyntaxType">Whether a method or a property</param>
+        /// <returns></returns>
+        public static string MissingSummaryCommentsOutputError(SyntaxToken identifier, string declarationSyntaxType)
+            => $"The {declarationSyntaxType} with name: {identifier} does NOT have any <summary> comments </summary>";
+
+        #endregion
+
         #endregion
 
     }

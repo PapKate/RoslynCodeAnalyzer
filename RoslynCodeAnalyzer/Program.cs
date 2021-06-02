@@ -1,32 +1,40 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Text;
 
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace RoslynCodeAnalyzer
 {
+    /// <summary>
+    /// The main class
+    /// </summary>
     public class Program
     {
-        public static Microsoft.CodeAnalysis.SyntaxToken None { get; private set; }
+        /// <summary>
+        /// The none syntax token
+        /// </summary>
+        public static SyntaxToken None { get; private set; }
 
         static void Main(string[] args)
         {
-
             // C:\Users\PapKate\Documents\PersonalProjects\C#\RoslynCodeAnalyzer\RoslynCodeAnalyzer\MethodCommentInformation.cs
             var implementationFilePath = @"C:\Users\PapKate\Documents\PersonalProjects\C#\RoslynCodeAnalyzer\RoslynCodeAnalyzer\MethodCommentInformation.cs";
 
+            // Reads all the text in the file path
             var implementation = File.ReadAllText(implementationFilePath);
 
+            // Gets the syntax tree
             var tree = CSharpSyntaxTree.ParseText(implementation);
+            
+            // Gets the tree's root
             var root = tree.GetCompilationUnitRoot();
 
+            // Gets the tree's members
             var members = tree.GetRoot().DescendantNodes().OfType<MemberDeclarationSyntax>();
 
             var methodCommentsData = new List<MethodCommentInformation>();
@@ -35,67 +43,40 @@ namespace RoslynCodeAnalyzer
             {
                 if (member is PropertyDeclarationSyntax property)
                 {
-                    var clean = GetSummaryComments(property, property.Identifier, "property");
+                    // Gets the xml node
+                    var xml = GetXml(property, property.Identifier, "method");
+
+                    // Gets the summary element
+                    var clean = GetSummary(xml, property.Identifier, "property");
                 }
 
                 // If the member is of type MethodDeclarationSyntax...
                 if (member is MethodDeclarationSyntax method)
                 {
-                    // Gets the comments above the method
-                    var xmlCommentTrivia = method.GetLeadingTrivia().FirstOrDefault(x => x.Kind() == SyntaxKind.SingleLineDocumentationCommentTrivia);
+                    // Gets the xml node
+                    var xml = GetXml(method, method.Identifier, "method");
 
-                    // If there are no comments for the method...
-                    if (xmlCommentTrivia == null || xmlCommentTrivia.Token == None)
-                    {
-                        // Prints message to the output console
-                        Debug.WriteLine($"The method with name: {method.Identifier} does NOT have any comments!");
-                        // Returns
-                        continue;
-                    }
-
-                    // Gets the comments' xml structure
-                    var xml = xmlCommentTrivia.GetStructure();
-
-                    // Sets as summary the first xml's child of type XmlElementSyntax that has a start tag <summary>
-                    var summary = xml.ChildNodes()
-                                    .OfType<XmlElementSyntax>()
-                                    .FirstOrDefault(i => i.StartTag.Name.ToString().Equals("summary"));
-                    
-                    // If there are no summary comments for the method...
-                    if(summary == null)
-                    {
-                        // Prints message to the output console
-                        Debug.WriteLine($"The method with name: {method.Identifier}  does NOT have any <summary> comments </summary>");
-                        // Returns
-                        continue;
-                    }
-
-                    // Gets the text inside the <summary> </sumarry> area
-                    var summaryComments = summary.ChildNodes().OfType<XmlTextSyntax>().FirstOrDefault().GetText();
-
-                    // Filters the string and removes the specified strings
-                    var clean = HelperMethods.FilterString(summaryComments.ToString(), "\r", "\n", "///");
-
-                    // Replaces the multiple spaces with a single one
-                    clean = HelperMethods.CleanStringFromExtraSpaces(clean);
+                    // Gets the summary element
+                    var summary = GetSummary(xml, method.Identifier, "method");
 
                     var commentsData = new MethodCommentInformation() 
                     {
                         MethodName = method.Identifier.ToString(),
-                        SummaryComments = clean 
+                        SummaryComments = GetSummaryComments(summary)
                     };
 
                     // Gets all the child nodes the have the start tag <param> and adds them to a list
                     var allParamNameAttributes = xml.ChildNodes().OfType<XmlElementSyntax>()
-                                                    .Where(i => i.StartTag.Name.ToString().Equals("param"))
+                                                    .Where(i => i.StartTag.Name.ToString().Equals(Constants.ParameterTag))
                                                     .ToList();
-                    // If not comments for parameters is found...
+
+                    // If no comments for parameters is found...
                     if(allParamNameAttributes.Count == 0 
                         // And the actual method has parameters...
                         && method.ParameterList.Parameters.Count != 0)
                     {
                         // Prints message to the output console
-                        Debug.WriteLine($"The method with name: {method.Identifier} does NOT have any <param> comments </param> for its parameters");
+                        HelperMethods.MissingParamCommentsOutputError(method.Identifier);
                         // Returns
                         continue;
                     }
@@ -141,64 +122,103 @@ namespace RoslynCodeAnalyzer
         }
 
         /// <summary>
-        /// Gets the summary comments
+        /// Gets the xml node for the comments
         /// </summary>
         /// <param name="member">The member</param>
         /// <param name="identifier">The member's name </param>
         /// <param name="declarationSyntaxType">Whether a method or a property</param>
-        public static string GetSummaryComments(MemberDeclarationSyntax member, SyntaxToken identifier, string declarationSyntaxType)
+        /// <returns></returns>
+        public static SyntaxNode GetXml(MemberDeclarationSyntax member, SyntaxToken identifier, string declarationSyntaxType)
         {
             // Gets the comments above the method
             var xmlCommentTrivia = member.GetLeadingTrivia().FirstOrDefault(x => x.Kind() == SyntaxKind.SingleLineDocumentationCommentTrivia);
+
+            // Gets the comments' xml structure
+            var xml = xmlCommentTrivia.GetStructure();
 
             // If there are no comments for the method...
             if (xmlCommentTrivia == null || xmlCommentTrivia.Token == None)
             {
                 // Prints message to the output console
                 Debug.WriteLine($"The {declarationSyntaxType} with name: {identifier} does NOT have any comments!");
-                // Returns
+                
+                // Returns null
                 return null;
             }
 
-            // Gets the comments' xml structure
-            var xml = xmlCommentTrivia.GetStructure();
+            // Returns the xml node
+            return xml;
+        }
 
+        /// <summary>
+        /// Gets the summary comments
+        /// </summary>
+        /// <param name="xml">The xml node</param>
+        /// <param name="identifier">The member's name </param>
+        /// <param name="declarationSyntaxType">Whether a method or a property</param>
+        public static XmlElementSyntax GetSummary(SyntaxNode xml, SyntaxToken identifier, string declarationSyntaxType)
+        {
             // Sets as summary the first xml's child of type XmlElementSyntax that has a start tag <summary>
             var summary = xml.ChildNodes()
                             .OfType<XmlElementSyntax>()
-                            .FirstOrDefault(i => i.StartTag.Name.ToString().Equals("summary"));
+                            .FirstOrDefault(i => i.StartTag.Name.ToString().Equals(Constants.SummaryTag));
 
             // If there are no summary comments for the method...
             if (summary == null)
             {
                 // Prints message to the output console
-                Debug.WriteLine($"The {declarationSyntaxType} with name: {identifier}  does NOT have any <summary> comments </summary>");
+                HelperMethods.MissingSummaryCommentsOutputError(identifier, declarationSyntaxType);
                 // Returns
                 return null;
             }
 
-            // Gets the text inside the <summary> </sumarry> area
-            var summaryComments = summary.Content;
+            // Returns the summary syntax element
+            return summary;
+        }
 
-            var seeCref = summary.ChildNodes().OfType<XmlEmptyElementSyntax>().ToList();
-
-            var summaryCommentParameters = new List<ParameterCommentInformation>();
-
-            foreach (var cref in seeCref)
-            {
-                var test = cref.ChildNodes().OfType<XmlCrefAttributeSyntax>().FirstOrDefault()
-                    .ChildNodes().OfType<NameMemberCrefSyntax>().FirstOrDefault()
-                    .ChildNodes().OfType<IdentifierNameSyntax>().FirstOrDefault()
-                    .Identifier;
-            }
-
+        /// <summary>
+        /// Gets the summary comments and formats them correctly
+        /// </summary>
+        /// <param name="summary">The summary</param>
+        /// <returns></returns>
+        public static string GetSummaryComments(XmlElementSyntax summary)
+        {
+            // Gets the text inside the <summary> </sumarry> area and...
             // Filters the string and removes the specified strings
-            var clean = HelperMethods.FilterString(summaryComments.ToString(), "\r", "\n", "///");
+            var clean = HelperMethods.FilterString(summary.Content.ToString(), Constants.CarriageReturn, Constants.NewLine, Constants.TripleSlashes);
 
             // Replaces the multiple spaces with a single one
             clean = HelperMethods.CleanStringFromExtraSpaces(clean);
 
+            // Returns the "cleaned" version of the summary comments
             return clean;
+        }
+
+        /// <summary>
+        /// Filters through summary and gets the empty elements
+        /// </summary>
+        /// <param name="summary">The summary</param>
+        public static void FilterThroughEmptyElements(XmlElementSyntax summary)
+        {
+            var emptyElements = summary.ChildNodes().OfType<XmlEmptyElementSyntax>().ToList();
+
+            var summaryCommentParameters = new List<ParameterCommentInformation>();
+
+            foreach (var emptyElement in emptyElements)
+            {
+                var cref = emptyElement.ChildNodes().OfType<XmlCrefAttributeSyntax>().FirstOrDefault()
+                    ?.ChildNodes().OfType<NameMemberCrefSyntax>().FirstOrDefault()
+                    ?.ChildNodes().OfType<IdentifierNameSyntax>().FirstOrDefault();
+                if (cref != null)
+                    summaryCommentParameters.Add(new ParameterCommentInformation() { Name = cref.Identifier.ToString() });
+                else
+                {
+                    var paramref = emptyElement.ChildNodes().OfType<XmlNameAttributeSyntax>().FirstOrDefault()
+                        ?.ChildNodes().OfType<IdentifierNameSyntax>().FirstOrDefault();
+                    if (paramref != null)
+                        summaryCommentParameters.Add(new ParameterCommentInformation() { Name = paramref.Identifier.ToString() });
+                }
+            }
         }
     }
 
