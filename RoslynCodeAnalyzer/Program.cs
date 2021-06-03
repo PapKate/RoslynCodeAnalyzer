@@ -185,7 +185,10 @@ namespace RoslynCodeAnalyzer
         {
             // Gets the text inside the <summary> </sumarry> area and...
             // Filters the string and removes the specified strings
-            var clean = HelperMethods.FilterString(summary.Content.ToString(), Constants.CarriageReturn, Constants.NewLine, Constants.TripleSlashes);
+            var clean = HelperMethods.FilterString(summary.Content.ToString(), 
+                                                   Constants.CarriageReturn, 
+                                                   Constants.NewLine, 
+                                                   Constants.TripleSlashes);
 
             // Replaces the multiple spaces with a single one
             clean = HelperMethods.CleanStringFromExtraSpaces(clean);
@@ -200,22 +203,37 @@ namespace RoslynCodeAnalyzer
         /// <param name="summary">The summary</param>
         public static void FilterThroughEmptyElements(XmlElementSyntax summary)
         {
+            // Gets the empty elements of the summary
             var emptyElements = summary.ChildNodes().OfType<XmlEmptyElementSyntax>().ToList();
 
+            // New List
             var summaryCommentParameters = new List<ParameterCommentInformation>();
 
+            // For each empty element found in summary...
             foreach (var emptyElement in emptyElements)
             {
+                // Gets the empty element of type Cref attribute syntax if exists...
                 var cref = emptyElement.ChildNodes().OfType<XmlCrefAttributeSyntax>().FirstOrDefault()
+                    // Then the child node of type member Cref if exists...
                     ?.ChildNodes().OfType<NameMemberCrefSyntax>().FirstOrDefault()
+                    // Then the child node of type Identifier name 
                     ?.ChildNodes().OfType<IdentifierNameSyntax>().FirstOrDefault();
+                
+                // If a cref node exists...
                 if (cref != null)
+                    // Adds to the summary comments parameters a new parameterCommentsInformation with name the cref's identifier
                     summaryCommentParameters.Add(new ParameterCommentInformation() { Name = cref.Identifier.ToString() });
+                // Else...
                 else
                 {
+                    // Gets the empty element's child node of type Name attribute if exists...
                     var paramref = emptyElement.ChildNodes().OfType<XmlNameAttributeSyntax>().FirstOrDefault()
+                        // Then the child node of type Identifier name 
                         ?.ChildNodes().OfType<IdentifierNameSyntax>().FirstOrDefault();
+                    
+                    // If a param ref exists...
                     if (paramref != null)
+                        // Adds to the summary comments parameters a new parameterCommentsInformation with name the param ref's identifier
                         summaryCommentParameters.Add(new ParameterCommentInformation() { Name = paramref.Identifier.ToString() });
                 }
             }

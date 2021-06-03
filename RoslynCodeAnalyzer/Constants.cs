@@ -5,9 +5,6 @@
     /// </summary>
     public static class Constants
     {
-
-        #region Public Properties
-
         #region Tags
 
         /// <summary>
@@ -19,7 +16,6 @@
         /// The "summary"
         /// </summary>
         public const string SummaryTag = "summary";
-
 
         #endregion
 
@@ -42,7 +38,6 @@
 
         #endregion
 
-        #endregion
 
     }
 }
