@@ -5,6 +5,17 @@
     /// </summary>
     public static class Constants
     {
+        #region Paths
+
+        /// <summary>
+        /// The path to the cs class file
+        /// </summary>
+        public const string CsFilePath = @"C:\Users\PapKate\Documents\PersonalProjects\C#\RoslynCodeAnalyzer\RoslynCodeAnalyzer\MethodCommentInformation.cs";
+
+
+
+        #endregion
+
         #region Tags
 
         /// <summary>

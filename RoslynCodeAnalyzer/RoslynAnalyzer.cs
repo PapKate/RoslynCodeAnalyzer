@@ -45,7 +45,7 @@ namespace RoslynCodeAnalyzer
         public void AnalyzeFile()
         {
             // C:\Users\PapKate\Documents\PersonalProjects\C#\RoslynCodeAnalyzer\RoslynCodeAnalyzer\MethodCommentInformation.cs
-            var implementationFilePath = @"C:\Users\PapKate\Documents\PersonalProjects\C#\RoslynCodeAnalyzer\RoslynCodeAnalyzer\MethodCommentInformation.cs";
+            var implementationFilePath = Constants.CsFilePath;
 
             // Reads all the text in the file path
             var implementation = File.ReadAllText(implementationFilePath);
