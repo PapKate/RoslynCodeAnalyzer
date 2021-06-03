@@ -144,6 +144,11 @@
             The parameter's description
             </summary>
         </member>
+        <member name="P:RoslynCodeAnalyzer.ParameterCommentInformation.XmlElement">
+            <summary>
+            The xml element
+            </summary>
+        </member>
         <member name="P:RoslynCodeAnalyzer.ParameterCommentInformation.CommentParameters">
             <summary>
             The parameters that are used in the <see cref="P:RoslynCodeAnalyzer.ParameterCommentInformation.Comments"/>
@@ -234,13 +239,18 @@
             <param name="summary">The summary</param>
             <returns></returns>
         </member>
-        <member name="M:RoslynCodeAnalyzer.RoslynAnalyzer.FilterThroughEmptyElements(Microsoft.CodeAnalysis.CSharp.Syntax.XmlElementSyntax,System.Boolean,System.Collections.Generic.List{RoslynCodeAnalyzer.ParameterCommentInformation})">
+        <member name="M:RoslynCodeAnalyzer.RoslynAnalyzer.FilterThroughEmptyElements(Microsoft.CodeAnalysis.CSharp.Syntax.XmlElementSyntax,System.Collections.Generic.List{RoslynCodeAnalyzer.ParameterCommentInformation})">
             <summary>
             Filters through summary and gets the empty elements
             </summary>
             <param name="summary">The summary</param>
-            <param name="isMethod">Whether the member is a method</param>
             <param name="parameterComments"></param>
+        </member>
+        <member name="M:RoslynCodeAnalyzer.RoslynAnalyzer.FilterThroughEmptyElements(Microsoft.CodeAnalysis.CSharp.Syntax.XmlElementSyntax)">
+            <summary>
+            Filters through summary and gets the empty elements
+            </summary>
+            <param name="summary">The summary</param>
         </member>
         <member name="T:RoslynCodeAnalyzer.XmlAnalyzer">
             <summary>

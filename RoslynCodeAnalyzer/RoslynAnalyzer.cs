@@ -61,6 +61,8 @@ namespace RoslynCodeAnalyzer
 
             var multipleMethodCommentsData = new List<MethodCommentInformation>();
 
+            var multiplePropertyCommentsData = new List<PropertyCommentInformation>();
+
             foreach (var member in members)
             {
                 if (member is PropertyDeclarationSyntax property)
@@ -70,16 +72,36 @@ namespace RoslynCodeAnalyzer
 
                     // Gets the summary element
                     var clean = GetSummary(xml, property.Identifier, "property");
+
+                    // Gets the first child node of type XmlElementSyntax and filter's through it and gets all the cref elements
+                    var list = FilterThroughEmptyElements(xml.ChildNodes().OfType<XmlElementSyntax>().First());
+
+                    // Creates and adds to the multiple properties list a property comment information with...
+                    // Name the property's identifier, 
+                    // Comments the clean version of summary
+                    // CommentCref the list with the cref elements
+                    multiplePropertyCommentsData.Add(new PropertyCommentInformation()
+                    { 
+                        Name = property.Identifier.ToString(),
+                        Comments = clean.ToString(),
+                        CommentCref = list
+                    });
                 }
 
-                // If the member is of type MethodDeclarationSyntax...
-                if (member is MethodDeclarationSyntax method)
+                // Else if the member is of type MethodDeclarationSyntax...
+                else if (member is MethodDeclarationSyntax method)
                 {
                     // Gets the xml node
                     var xml = GetXml(method, method.Identifier, "method");
 
+                    if (xml == null)
+                        continue;
+
                     // Gets the summary element
                     var summary = GetSummary(xml, method.Identifier, "method");
+
+                    if (summary == null)
+                        continue;
 
                     var methodCommentsData = new MethodCommentInformation()
                     {
@@ -127,13 +149,16 @@ namespace RoslynCodeAnalyzer
                         {
                             Name = parameterName,
                             Comments = cleanParamComments,
+                            XmlElement = paramData
                         });
-
-                        FilterThroughEmptyElements(paramData, false, paramDataList);
                     }
+
+                    paramDataList.ForEach(x => x.CommentParameters = FilterThroughEmptyElements(x.XmlElement, paramDataList));
 
                     // Sets as the parameters of the comments data as the paramDataList
                     methodCommentsData.Parameters = paramDataList;
+
+                    methodCommentsData.SummaryCommentParameters = FilterThroughEmptyElements(summary, paramDataList);
 
                     // Adds to the methodCommentsData the commentsData
                     multipleMethodCommentsData.Add(methodCommentsData);
@@ -226,9 +251,8 @@ namespace RoslynCodeAnalyzer
         /// Filters through summary and gets the empty elements
         /// </summary>
         /// <param name="summary">The summary</param>
-        /// <param name="isMethod">Whether the member is a method</param>
         /// <param name="parameterComments"></param>
-        public void FilterThroughEmptyElements(XmlElementSyntax summary, bool isMethod, List<ParameterCommentInformation> parameterComments)
+        public List<ParameterCommentInformation> FilterThroughEmptyElements(XmlElementSyntax summary, List<ParameterCommentInformation> parameterComments)
         {
             // Gets the empty elements of the summary
             var emptyElements = summary.ChildNodes().OfType<XmlEmptyElementSyntax>().ToList();
@@ -260,10 +284,43 @@ namespace RoslynCodeAnalyzer
 
                     // If a param ref exists...
                     if (paramref != null)
-                        // Adds to the summary comments parameters a new parameterCommentsInformation with name the param ref's identifier
-                        summaryCommentParameters.Add(new ParameterCommentInformation() { Name = paramref.Identifier.ToString() });
+                            // Adds to the summary comments parameters a new parameterCommentsInformation with name the param ref's identifier
+                            summaryCommentParameters.Add(parameterComments.First(x => x.Name == paramref.Identifier.ToString()));
                 }
             }
+
+            return summaryCommentParameters;
+        }
+
+        /// <summary>
+        /// Filters through summary and gets the empty elements
+        /// </summary>
+        /// <param name="summary">The summary</param>
+        public List<ParameterCommentInformation> FilterThroughEmptyElements(XmlElementSyntax summary)
+        {
+            // Gets the empty elements of the summary
+            var emptyElements = summary.ChildNodes().OfType<XmlEmptyElementSyntax>().ToList();
+
+            // New List
+            var summaryCommentParameters = new List<ParameterCommentInformation>();
+
+            // For each empty element found in summary...
+            foreach (var emptyElement in emptyElements)
+            {
+                // Gets the empty element of type Cref attribute syntax if exists...
+                var cref = emptyElement.ChildNodes().OfType<XmlCrefAttributeSyntax>().FirstOrDefault()
+                    // Then the child node of type member Cref...
+                    ?.ChildNodes().OfType<NameMemberCrefSyntax>().First()
+                    // Then the child node of type Identifier name 
+                    .ChildNodes().OfType<IdentifierNameSyntax>().First();
+
+                // If a cref node exists...
+                if (cref != null)
+                    // Adds to the summary comments parameters a new parameterCommentsInformation with name the cref's identifier
+                    summaryCommentParameters.Add(new ParameterCommentInformation() { Name = cref.Identifier.ToString() });
+            }
+
+            return summaryCommentParameters;
         }
 
         #endregion

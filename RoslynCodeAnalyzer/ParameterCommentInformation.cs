@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
+
+using System;
 using System.Collections.Generic;
 
 namespace RoslynCodeAnalyzer
@@ -19,6 +21,11 @@ namespace RoslynCodeAnalyzer
         /// The parameter's description
         /// </summary>
         public string Comments { get; set; }
+
+        /// <summary>
+        /// The xml element
+        /// </summary>
+        public XmlElementSyntax XmlElement { get; set; }
 
         /// <summary>
         /// The parameters that are used in the <see cref="Comments"/>
