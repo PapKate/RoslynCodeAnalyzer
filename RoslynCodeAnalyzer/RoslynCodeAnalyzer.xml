@@ -9,6 +9,31 @@
             The constants for the app
             </summary>
         </member>
+        <member name="F:RoslynCodeAnalyzer.Constants.ParameterTag">
+            <summary>
+            The "param"
+            </summary>
+        </member>
+        <member name="F:RoslynCodeAnalyzer.Constants.SummaryTag">
+            <summary>
+            The "summary"
+            </summary>
+        </member>
+        <member name="F:RoslynCodeAnalyzer.Constants.CarriageReturn">
+            <summary>
+            The "\r"
+            </summary>
+        </member>
+        <member name="F:RoslynCodeAnalyzer.Constants.NewLine">
+            <summary>
+            The "\n"
+            </summary>
+        </member>
+        <member name="F:RoslynCodeAnalyzer.Constants.TripleSlashes">
+            <summary>
+            The "///"
+            </summary>
+        </member>
         <member name="T:RoslynCodeAnalyzer.MethodCommentInformation">
             <summary>
             Provides information about the documentation comments of a method
@@ -43,10 +68,10 @@
             <summary>
             Testing the specified <paramref name="comments"/> yes <see cref="P:RoslynCodeAnalyzer.MethodCommentInformation.SummaryComments"/>
             </summary>
-            <param name="comments">Thee comments <paramref name="oof"/> <paramref name="parameterDatas"/></param>
+            <param name="comments">Thee comments <paramref name="oof"/> <paramref name="comments"/></param>
             <param name="test">The test rgdrg
             drgrdgdrgdrgt</param>
-            <param name="oof">Aaaaaaaa</param>
+            <param name="oof">Aaaaaaaa <paramref name="comments"/></param>
             <param name="parameterDatas">ola kala OPA</param>
         </member>
         <member name="M:RoslynCodeAnalyzer.MethodCommentInformation.SetCommentsData(System.String,System.String,System.Int32,System.Collections.Generic.IEnumerable{RoslynCodeAnalyzer.ParameterCommentInformation})">
@@ -89,6 +114,21 @@
             <param name="value">The string</param>
             <returns></returns>
         </member>
+        <member name="M:RoslynCodeAnalyzer.HelperMethods.MissingParamCommentsOutputError(Microsoft.CodeAnalysis.SyntaxToken)">
+            <summary>
+            Prints message to the output console
+            </summary>
+            <param name="identifier">The identifier</param>
+            <returns></returns>
+        </member>
+        <member name="M:RoslynCodeAnalyzer.HelperMethods.MissingSummaryCommentsOutputError(Microsoft.CodeAnalysis.SyntaxToken,System.String)">
+            <summary>
+            Prints message to the output console
+            </summary>
+            <param name="identifier">The identifier</param>
+            <param name="declarationSyntaxType">Whether a method or a property</param>
+            <returns></returns>
+        </member>
         <member name="T:RoslynCodeAnalyzer.ParameterCommentInformation">
             <summary>
             Provides information about the document comments of a parameter of a method
@@ -119,19 +159,103 @@
             The main class
             </summary>
         </member>
-        <member name="P:RoslynCodeAnalyzer.Program.None">
+        <member name="M:RoslynCodeAnalyzer.Program.Main(System.String[])">
+            <summary>
+            The main
+            </summary>
+            <param name="args"></param>
+        </member>
+        <member name="T:RoslynCodeAnalyzer.PropertyCommentInformation">
+            <summary>
+            Provides information about the document comments of a property
+            </summary>
+        </member>
+        <member name="P:RoslynCodeAnalyzer.PropertyCommentInformation.Name">
+            <summary>
+            The parameter's name
+            </summary>
+        </member>
+        <member name="P:RoslynCodeAnalyzer.PropertyCommentInformation.Comments">
+            <summary>
+            The parameter's description
+            </summary>
+        </member>
+        <member name="P:RoslynCodeAnalyzer.PropertyCommentInformation.CommentCref">
+            <summary>
+            The cref that are used in the <see cref="P:RoslynCodeAnalyzer.PropertyCommentInformation.Comments"/>
+            </summary>
+        </member>
+        <member name="M:RoslynCodeAnalyzer.PropertyCommentInformation.#ctor">
+            <summary>
+            Default constructor
+            </summary>
+        </member>
+        <member name="T:RoslynCodeAnalyzer.RoslynAnalyzer">
+            <summary>
+            Responsible for analyzing .cs files with Roslyn 
+            </summary>
+        </member>
+        <member name="P:RoslynCodeAnalyzer.RoslynAnalyzer.None">
             <summary>
             The none syntax token
             </summary>
         </member>
-        <member name="M:RoslynCodeAnalyzer.Program.GetSummaryComments(Microsoft.CodeAnalysis.CSharp.Syntax.MemberDeclarationSyntax,Microsoft.CodeAnalysis.SyntaxToken,System.String,RoslynCodeAnalyzer.ParameterCommentInformation)">
+        <member name="M:RoslynCodeAnalyzer.RoslynAnalyzer.#ctor">
             <summary>
-            Gets the summary comments
+            Default constructor
+            </summary>
+        </member>
+        <member name="M:RoslynCodeAnalyzer.RoslynAnalyzer.AnalyzeFile">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:RoslynCodeAnalyzer.RoslynAnalyzer.GetXml(Microsoft.CodeAnalysis.CSharp.Syntax.MemberDeclarationSyntax,Microsoft.CodeAnalysis.SyntaxToken,System.String)">
+            <summary>
+            Gets the xml node for the comments
             </summary>
             <param name="member">The member</param>
             <param name="identifier">The member's name </param>
             <param name="declarationSyntaxType">Whether a method or a property</param>
-            <param name="parameterCommentInformation"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RoslynCodeAnalyzer.RoslynAnalyzer.GetSummary(Microsoft.CodeAnalysis.SyntaxNode,Microsoft.CodeAnalysis.SyntaxToken,System.String)">
+            <summary>
+            Gets the summary comments
+            </summary>
+            <param name="xml">The xml node</param>
+            <param name="identifier">The member's name </param>
+            <param name="declarationSyntaxType">Whether a method or a property</param>
+        </member>
+        <member name="M:RoslynCodeAnalyzer.RoslynAnalyzer.GetSummaryComments(Microsoft.CodeAnalysis.CSharp.Syntax.XmlElementSyntax)">
+            <summary>
+            Gets the summary comments and formats them correctly
+            </summary>
+            <param name="summary">The summary</param>
+            <returns></returns>
+        </member>
+        <member name="M:RoslynCodeAnalyzer.RoslynAnalyzer.FilterThroughEmptyElements(Microsoft.CodeAnalysis.CSharp.Syntax.XmlElementSyntax,System.Boolean,System.Collections.Generic.List{RoslynCodeAnalyzer.ParameterCommentInformation})">
+            <summary>
+            Filters through summary and gets the empty elements
+            </summary>
+            <param name="summary">The summary</param>
+            <param name="isMethod">Whether the member is a method</param>
+            <param name="parameterComments"></param>
+        </member>
+        <member name="T:RoslynCodeAnalyzer.XmlAnalyzer">
+            <summary>
+            Responsible for analyzing a .xml file
+            </summary>
+        </member>
+        <member name="M:RoslynCodeAnalyzer.XmlAnalyzer.#ctor">
+            <summary>
+            Default constructor
+            </summary>
+        </member>
+        <member name="M:RoslynCodeAnalyzer.XmlAnalyzer.AnalyzeFile">
+            <summary>
+            Reads and analyzes an xml file
+            </summary>
         </member>
     </members>
 </doc>

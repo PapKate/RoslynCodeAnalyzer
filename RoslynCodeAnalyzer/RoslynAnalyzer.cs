@@ -42,7 +42,7 @@ namespace RoslynCodeAnalyzer
         /// <summary>
         /// 
         /// </summary>
-        public void RoslynFileAnalyzer()
+        public void AnalyzeFile()
         {
             // C:\Users\PapKate\Documents\PersonalProjects\C#\RoslynCodeAnalyzer\RoslynCodeAnalyzer\MethodCommentInformation.cs
             var implementationFilePath = @"C:\Users\PapKate\Documents\PersonalProjects\C#\RoslynCodeAnalyzer\RoslynCodeAnalyzer\MethodCommentInformation.cs";
@@ -59,7 +59,7 @@ namespace RoslynCodeAnalyzer
             // Gets the tree's members
             var members = tree.GetRoot().DescendantNodes().OfType<MemberDeclarationSyntax>();
 
-            var methodCommentsData = new List<MethodCommentInformation>();
+            var multipleMethodCommentsData = new List<MethodCommentInformation>();
 
             foreach (var member in members)
             {
@@ -81,7 +81,7 @@ namespace RoslynCodeAnalyzer
                     // Gets the summary element
                     var summary = GetSummary(xml, method.Identifier, "method");
 
-                    var commentsData = new MethodCommentInformation()
+                    var methodCommentsData = new MethodCommentInformation()
                     {
                         MethodName = method.Identifier.ToString(),
                         SummaryComments = GetSummaryComments(summary)
@@ -114,10 +114,13 @@ namespace RoslynCodeAnalyzer
                         cleanParamComments = HelperMethods.CleanStringFromExtraSpaces(cleanParamComments);
 
                         // Sets as parameter name from paramData gets the first object with start tag that has a type of XmlNameAttributeSyntax and gets its identifier
-                        var parameterName = paramData.StartTag.Attributes.OfType<XmlNameAttributeSyntax>().FirstOrDefault().Identifier.ToString();
+                        var parameterName = paramData.StartTag.Attributes.OfType<XmlNameAttributeSyntax>()
+                                            .FirstOrDefault().Identifier.ToString();
 
-                        // Gets the parameter's type
-                        var parameterType = method.ParameterList.Parameters.FirstOrDefault(x => x.Identifier.ToString() == parameterName).Type.GetText();
+                        // Gets the parameter's type as string
+                        // TODO: fix -> get type
+                        var parameterType = method.ParameterList.Parameters.First(x => x.Identifier.ToString() == parameterName)
+                                                                                        .Type.GetText();
 
                         // Creates and adds to the list the parameter data
                         paramDataList.Add(new ParameterCommentInformation()
@@ -125,17 +128,19 @@ namespace RoslynCodeAnalyzer
                             Name = parameterName,
                             Comments = cleanParamComments,
                         });
+
+                        FilterThroughEmptyElements(paramData, false, paramDataList);
                     }
 
                     // Sets as the parameters of the comments data as the paramDataList
-                    commentsData.Parameters = paramDataList;
+                    methodCommentsData.Parameters = paramDataList;
 
                     // Adds to the methodCommentsData the commentsData
-                    methodCommentsData.Add(commentsData);
+                    multipleMethodCommentsData.Add(methodCommentsData);
                 }
             }
 
-            foreach (var methodData in methodCommentsData)
+            foreach (var methodData in multipleMethodCommentsData)
             {
                 Console.WriteLine($"Method Name : {methodData.MethodName}\nSummary : {methodData.SummaryComments}\n");
             }
@@ -221,7 +226,9 @@ namespace RoslynCodeAnalyzer
         /// Filters through summary and gets the empty elements
         /// </summary>
         /// <param name="summary">The summary</param>
-        public void FilterThroughEmptyElements(XmlElementSyntax summary)
+        /// <param name="isMethod">Whether the member is a method</param>
+        /// <param name="parameterComments"></param>
+        public void FilterThroughEmptyElements(XmlElementSyntax summary, bool isMethod, List<ParameterCommentInformation> parameterComments)
         {
             // Gets the empty elements of the summary
             var emptyElements = summary.ChildNodes().OfType<XmlEmptyElementSyntax>().ToList();
@@ -234,10 +241,10 @@ namespace RoslynCodeAnalyzer
             {
                 // Gets the empty element of type Cref attribute syntax if exists...
                 var cref = emptyElement.ChildNodes().OfType<XmlCrefAttributeSyntax>().FirstOrDefault()
-                    // Then the child node of type member Cref if exists...
-                    ?.ChildNodes().OfType<NameMemberCrefSyntax>().FirstOrDefault()
+                    // Then the child node of type member Cref...
+                    ?.ChildNodes().OfType<NameMemberCrefSyntax>().First()
                     // Then the child node of type Identifier name 
-                    ?.ChildNodes().OfType<IdentifierNameSyntax>().FirstOrDefault();
+                    .ChildNodes().OfType<IdentifierNameSyntax>().First();
 
                 // If a cref node exists...
                 if (cref != null)
@@ -249,7 +256,7 @@ namespace RoslynCodeAnalyzer
                     // Gets the empty element's child node of type Name attribute if exists...
                     var paramref = emptyElement.ChildNodes().OfType<XmlNameAttributeSyntax>().FirstOrDefault()
                         // Then the child node of type Identifier name 
-                        ?.ChildNodes().OfType<IdentifierNameSyntax>().FirstOrDefault();
+                        ?.ChildNodes().OfType<IdentifierNameSyntax>().First();
 
                     // If a param ref exists...
                     if (paramref != null)
