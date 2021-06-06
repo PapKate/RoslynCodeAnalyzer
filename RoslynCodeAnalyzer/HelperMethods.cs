@@ -48,6 +48,23 @@ namespace RoslynCodeAnalyzer
             return value;
         }
 
+        /// <summary>
+        /// Cleans and formats the summary comments
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static string CleanedCommentsString(string value)
+        {
+            // Filters the string and removes the specified strings
+            value = FilterString(value, Constants.CarriageReturn, Constants.NewLine, Constants.TripleSlashes);
+
+            // Replaces multiple spaces with one
+            value = CleanStringFromExtraSpaces(value);
+
+            // Returns the new value
+            return value;
+        }
+
         #region Errors
 
         /// <summary>

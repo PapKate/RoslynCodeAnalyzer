@@ -9,6 +9,26 @@
             The constants for the app
             </summary>
         </member>
+        <member name="F:RoslynCodeAnalyzer.Constants.CsFilePath">
+            <summary>
+            The path to the cs class file
+            </summary>
+        </member>
+        <member name="F:RoslynCodeAnalyzer.Constants.XmlFilePath">
+            <summary>
+            The path to the xml file
+            </summary>
+        </member>
+        <member name="F:RoslynCodeAnalyzer.Constants.MethodTag">
+            <summary>
+            The "method"
+            </summary>
+        </member>
+        <member name="F:RoslynCodeAnalyzer.Constants.PropertyTag">
+            <summary>
+            The "property"
+            </summary>
+        </member>
         <member name="F:RoslynCodeAnalyzer.Constants.ParameterTag">
             <summary>
             The "param"
@@ -74,6 +94,11 @@
             <param name="oof">Aaaaaaaa <paramref name="comments"/></param>
             <param name="parameterDatas">ola kala OPA</param>
         </member>
+        <member name="M:RoslynCodeAnalyzer.MethodCommentInformation.GetCommentsData">
+            <summary>
+            The comments data
+            </summary>
+        </member>
         <member name="M:RoslynCodeAnalyzer.MethodCommentInformation.SetCommentsData(System.String,System.String,System.Int32,System.Collections.Generic.IEnumerable{RoslynCodeAnalyzer.ParameterCommentInformation})">
             <param name="comments"></param>
             <param name="test"></param>
@@ -114,6 +139,13 @@
             <param name="value">The string</param>
             <returns></returns>
         </member>
+        <member name="M:RoslynCodeAnalyzer.HelperMethods.CleanedCommentsString(System.String)">
+            <summary>
+            Cleans and formats the summary comments
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
         <member name="M:RoslynCodeAnalyzer.HelperMethods.MissingParamCommentsOutputError(Microsoft.CodeAnalysis.SyntaxToken)">
             <summary>
             Prints message to the output console
@@ -147,6 +179,11 @@
         <member name="P:RoslynCodeAnalyzer.ParameterCommentInformation.XmlElement">
             <summary>
             The xml element
+            </summary>
+        </member>
+        <member name="P:RoslynCodeAnalyzer.ParameterCommentInformation.References">
+            <summary>
+            The references in the comments
             </summary>
         </member>
         <member name="P:RoslynCodeAnalyzer.ParameterCommentInformation.CommentParameters">
@@ -212,7 +249,7 @@
         </member>
         <member name="M:RoslynCodeAnalyzer.RoslynAnalyzer.AnalyzeFile">
             <summary>
-            
+            Analyzes a .cs file with Roslyn
             </summary>
         </member>
         <member name="M:RoslynCodeAnalyzer.RoslynAnalyzer.GetXml(Microsoft.CodeAnalysis.CSharp.Syntax.MemberDeclarationSyntax,Microsoft.CodeAnalysis.SyntaxToken,System.String)">
@@ -257,14 +294,9 @@
             Responsible for analyzing a .xml file
             </summary>
         </member>
-        <member name="M:RoslynCodeAnalyzer.XmlAnalyzer.#ctor">
-            <summary>
-            Default constructor
-            </summary>
-        </member>
         <member name="M:RoslynCodeAnalyzer.XmlAnalyzer.AnalyzeFile">
             <summary>
-            Reads and analyzes an xml file
+            Analyzes an XML file
             </summary>
         </member>
     </members>

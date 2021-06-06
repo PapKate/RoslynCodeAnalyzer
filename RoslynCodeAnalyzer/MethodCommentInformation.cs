@@ -53,11 +53,14 @@ namespace RoslynCodeAnalyzer
         /// drgrdgdrgdrgt</param>
         /// <param name="oof">Aaaaaaaa <paramref name="comments"/></param>
         /// <param name="parameterDatas">ola kala OPA</param>
-        public void CreateCommentsData (string comments, string test, int oof, IEnumerable<ParameterCommentInformation> parameterDatas)
+        public string CreateCommentsData (string comments, string test, int oof, IEnumerable<ParameterCommentInformation> parameterDatas)
         {
-
+            return string.Empty;
         }
 
+        /// <summary>
+        /// The comments data
+        /// </summary>
         public void GetCommentsData()
         {
 

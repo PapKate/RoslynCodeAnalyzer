@@ -40,7 +40,7 @@ namespace RoslynCodeAnalyzer
         #region Public Methods
 
         /// <summary>
-        /// 
+        /// Analyzes a .cs file with Roslyn
         /// </summary>
         public void AnalyzeFile()
         {
@@ -68,10 +68,10 @@ namespace RoslynCodeAnalyzer
                 if (member is PropertyDeclarationSyntax property)
                 {
                     // Gets the xml node
-                    var xml = GetXml(property, property.Identifier, "method");
+                    var xml = GetXml(property, property.Identifier, Constants.MethodTag);
 
                     // Gets the summary element
-                    var clean = GetSummary(xml, property.Identifier, "property");
+                    var clean = GetSummary(xml, property.Identifier, Constants.PropertyTag);
 
                     // Gets the first child node of type XmlElementSyntax and filter's through it and gets all the cref elements
                     var list = FilterThroughEmptyElements(xml.ChildNodes().OfType<XmlElementSyntax>().First());
@@ -92,13 +92,13 @@ namespace RoslynCodeAnalyzer
                 else if (member is MethodDeclarationSyntax method)
                 {
                     // Gets the xml node
-                    var xml = GetXml(method, method.Identifier, "method");
+                    var xml = GetXml(method, method.Identifier, Constants.MethodTag);
 
                     if (xml == null)
                         continue;
 
                     // Gets the summary element
-                    var summary = GetSummary(xml, method.Identifier, "method");
+                    var summary = GetSummary(xml, method.Identifier, Constants.MethodTag);
 
                     if (summary == null)
                         continue;
@@ -131,7 +131,7 @@ namespace RoslynCodeAnalyzer
                     foreach (var paramData in allParamNameAttributes)
                     {
                         // Filters the paramData's Content and removes the specified strings
-                        var cleanParamComments = HelperMethods.FilterString(paramData.Content.ToString(), "\r", "\n", "///");
+                        var cleanParamComments = HelperMethods.FilterString(paramData.Content.ToString(), Constants.CarriageReturn, Constants.NewLine, Constants.TripleSlashes);
                         // Replaces the multiple spaces with a single one
                         cleanParamComments = HelperMethods.CleanStringFromExtraSpaces(cleanParamComments);
 

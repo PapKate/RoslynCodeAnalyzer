@@ -12,11 +12,24 @@
         /// </summary>
         public const string CsFilePath = @"C:\Users\PapKate\Documents\PersonalProjects\C#\RoslynCodeAnalyzer\RoslynCodeAnalyzer\MethodCommentInformation.cs";
 
-
+        /// <summary>
+        /// The path to the xml file
+        /// </summary>
+        public const string XmlFilePath = @"C:\Users\PapKate\Documents\PersonalProjects\C#\RoslynCodeAnalyzer\RoslynCodeAnalyzer\RoslynCodeAnalyzer.xml";
 
         #endregion
 
         #region Tags
+
+        /// <summary>
+        /// The "method"
+        /// </summary>
+        public const string MethodTag = "method";
+
+        /// <summary>
+        /// The "property"
+        /// </summary>
+        public const string PropertyTag= "property";
 
         /// <summary>
         /// The "param"

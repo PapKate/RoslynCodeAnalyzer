@@ -21,13 +21,11 @@ namespace RoslynCodeAnalyzer
         /// <param name="args"></param>
         public static void Main(string[] args)
         {
-            var xmlAnalyser = new XmlAnalyzer();
-
-            //xmlAnalyser.AnalyzeFile();
+            XmlAnalyzer.AnalyzeFile();
 
             var roslynAnalyzer = new RoslynAnalyzer();
 
-            roslynAnalyzer.AnalyzeFile();
+            //roslynAnalyzer.AnalyzeFile();
 
             Console.ReadLine();
         }
