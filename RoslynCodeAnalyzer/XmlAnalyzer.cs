@@ -1,16 +1,8 @@
-﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
-
+﻿
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Xml;
-using System.Xml.Linq;
-using System.Xml.Serialization;
 
 namespace RoslynCodeAnalyzer
 {
@@ -86,8 +78,34 @@ namespace RoslynCodeAnalyzer
                         // Parses the child to an Xml node
                         var node = (XmlNode)childNode;
                         
-                        // If the node's name is "param"...
-                        if(node.Name == Constants.ParameterTag)
+                        // If the node's name is "summary"
+                        if(node.Name == Constants.SummaryTag)
+                        {
+                            var summaryChildNodes = node.ChildNodes;
+                            
+                            var summaryRefs = new List<string>();
+
+                            foreach (var summaryChildData in summaryChildNodes)
+                            {
+                                var summaryChildNode = (XmlNode)summaryChildData;
+
+                                // If the node is of type Element...
+                                if (summaryChildNode.NodeType == XmlNodeType.Element)
+                                    if(summaryChildNode.Name == "paramref")
+                                        summaryRefs.Add(summaryChildNode.Attributes.GetNamedItem("name").Value);
+                                    else if(summaryChildNode.Name == "see")
+                                    {
+                                        var crefName = summaryChildNode.Attributes.GetNamedItem("cref").Value;
+
+                                        // Sets as method's name the character set after the last .
+                                        crefName = crefName.Substring(crefName.LastIndexOf(".") + 1);
+                                        
+                                        summaryRefs.Add(crefName);
+                                    }
+                            }
+                        }
+                        // Else if the node's name is "param"...
+                        else if(node.Name == Constants.ParameterTag)
                         {
                             //  Creates a new parameter comment information
                             var parameterCommentInformation = new ParameterCommentInformation
