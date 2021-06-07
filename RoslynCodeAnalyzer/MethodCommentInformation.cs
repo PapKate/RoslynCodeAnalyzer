@@ -20,6 +20,11 @@ namespace RoslynCodeAnalyzer
 	    public string SummaryComments { get; set; }
 
         /// <summary>
+        /// The references in the comments
+        /// </summary>
+        public List<string> References { get; set; }
+
+        /// <summary>
         /// The parameters that are used in the <see cref="SummaryComments"/> <see cref="MethodName"/>
         /// </summary>
         public IEnumerable<ParameterCommentInformation> SummaryCommentParameters { get; set; }

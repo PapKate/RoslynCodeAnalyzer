@@ -9,14 +9,14 @@ namespace RoslynCodeAnalyzer
     /// <summary>
     /// Responsible for analyzing a .xml file
     /// </summary>
-    public static class XmlAnalyzer
+    public class XmlAnalyzer
     {
         #region Public Methods
 
         /// <summary>
         /// Analyzes an XML file
         /// </summary>
-        public static void AnalyzeFile()
+        public void AnalyzeFile()
         {
             // Creates a new Xml document
             var doc = new XmlDocument();
@@ -24,7 +24,7 @@ namespace RoslynCodeAnalyzer
             doc.Load(Constants.XmlFilePath);
 
             // Gets all the elements with tag <member>
-            var members = doc.GetElementsByTagName("member");
+            var members = doc.GetElementsByTagName(Constants.MemberTag);
 
             // For each member in the xml file...
             foreach (var member in members)
@@ -34,7 +34,7 @@ namespace RoslynCodeAnalyzer
 
                 // If the name attribute of the member starts with "P:"...
                 // Meaning if the member is a property...
-                if (memberNode.Attributes.GetNamedItem("name").InnerXml.StartsWith("P:"))
+                if (memberNode.Attributes.GetNamedItem(Constants.NameTag).InnerXml.StartsWith("P:"))
                 {
                     // Sets as summary the inner xml of the member
                     var summary = memberNode.InnerXml;
@@ -43,22 +43,13 @@ namespace RoslynCodeAnalyzer
                 }
                 // Else if the name attribute of the member starts with "M:"...
                 // Meaning if the member is a method OR constructor...
-                else if (memberNode.Attributes.GetNamedItem("name").InnerXml.StartsWith("M:"))
+                else if (memberNode.Attributes.GetNamedItem(Constants.NameTag).InnerXml.StartsWith("M:"))
                 {
-                    // Sets as the method's name from the member node the name attribute's value
-                    var methodName = memberNode.Attributes.GetNamedItem("name").Value;
-                    
-                    // If the method name contains a (
-                    // Meaning, if the method has parameters...
-                    if(methodName.Contains("("))
-                        // Sets as the method's name the methods name up to before the (
-                        methodName = methodName.Substring(0, methodName.IndexOf("("));
+                    // Sets as the method's name from the member node the name attribute's value formatted accordingly
+                    var methodName = FormatMethodName(memberNode.GetAttributeName());
 
-                    // Sets as method's name the character set after the last .
-                    methodName = methodName.Substring(methodName.LastIndexOf(".") + 1);
-
-                    // Gets the member node's inner xml and removes the summary open and close tags
-                    var methodSummary = memberNode.InnerXml.Replace("<summary>", string.Empty).Replace("</summary>", string.Empty);
+                    // Gets the member node's inner text
+                    var methodSummary = memberNode.InnerText;
 
                     // Filters and cleans the text
                     methodSummary = HelperMethods.CleanedCommentsString(methodSummary);
@@ -91,18 +82,20 @@ namespace RoslynCodeAnalyzer
 
                                 // If the node is of type Element...
                                 if (summaryChildNode.NodeType == XmlNodeType.Element)
-                                    if(summaryChildNode.Name == "paramref")
-                                        summaryRefs.Add(summaryChildNode.Attributes.GetNamedItem("name").Value);
-                                    else if(summaryChildNode.Name == "see")
+                                    if(summaryChildNode.Name == Constants.ParameterReferenceTag)
+                                        summaryRefs.Add(summaryChildNode.Attributes.GetNamedItem(Constants.NameTag).Value);
+                                    else if(summaryChildNode.Name == Constants.SeeTag)
                                     {
-                                        var crefName = summaryChildNode.Attributes.GetNamedItem("cref").Value;
+                                        var crefName = summaryChildNode.GetAttributeName(Constants.CrefTag);
 
-                                        // Sets as method's name the character set after the last .
-                                        crefName = crefName.Substring(crefName.LastIndexOf(".") + 1);
+                                        // Sets as method's name the character set after the last '.'
+                                        crefName = crefName.Substring(crefName.LastIndexOf(Constants.Dot) + 1);
                                         
                                         summaryRefs.Add(crefName);
                                     }
                             }
+
+                            methodCommentInformation.References = summaryRefs;
                         }
                         // Else if the node's name is "param"...
                         else if(node.Name == Constants.ParameterTag)
@@ -110,7 +103,7 @@ namespace RoslynCodeAnalyzer
                             //  Creates a new parameter comment information
                             var parameterCommentInformation = new ParameterCommentInformation
                             {
-                                Name = node.Attributes.GetNamedItem("name").Value,
+                                Name = node.GetAttributeName(),
                                 Comments = node.InnerXml
                             };
 
@@ -127,7 +120,7 @@ namespace RoslynCodeAnalyzer
                                 
                                 // If the node is of type Element...
                                 if (paramNode.NodeType == XmlNodeType.Element)
-                                    paramRefs.Add(paramNode.Attributes.GetNamedItem("name").Value);
+                                    paramRefs.Add(paramNode.GetAttributeName(Constants.NameTag));
                             }
 
                             // Sets as references the found parmRefs
@@ -162,6 +155,26 @@ namespace RoslynCodeAnalyzer
                     Console.WriteLine(methodCommentInformation.SummaryComments);
                 }
             }
+        }
+
+        /// <summary>
+        /// Formats a method's full name
+        /// </summary>
+        /// <param name="value">The method's full name</param>
+        /// <returns></returns>
+        public string FormatMethodName(string value)
+        {
+            // If the method name contains a (
+            // Meaning, if the method has parameters...
+            if (value.Contains(Constants.LeftParenthesis))
+                // Sets as the method's name the methods name up to before the (
+                value = value.Substring(0, value.IndexOf(Constants.LeftParenthesis));
+
+            // Sets as method's name the character set after the last .
+            value = value.Substring(value.LastIndexOf(Constants.Dot) + 1);
+
+            // Returns the formatted value
+            return value;
         }
 
         #endregion

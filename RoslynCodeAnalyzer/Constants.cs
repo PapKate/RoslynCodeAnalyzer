@@ -37,9 +37,34 @@
         public const string ParameterTag = "param";
 
         /// <summary>
+        /// The "paramref"
+        /// </summary>
+        public const string ParameterReferenceTag = "paramref";
+
+        /// <summary>
         /// The "summary"
         /// </summary>
         public const string SummaryTag = "summary";
+
+        /// <summary>
+        /// The "member"
+        /// </summary>
+        public const string MemberTag = "member";
+
+        /// <summary>
+        /// The "name"
+        /// </summary>
+        public const string NameTag = "name";
+
+        /// <summary>
+        /// The "see"
+        /// </summary>
+        public const string SeeTag = "see";
+
+        /// <summary>
+        /// The "cref"
+        /// </summary>
+        public const string CrefTag = "cref";
 
         #endregion
 
@@ -59,6 +84,16 @@
         /// The "///"
         /// </summary>
         public const string TripleSlashes = "///";
+
+        /// <summary>
+        /// The "."
+        /// </summary>
+        public const string Dot = ".";
+
+        /// <summary>
+        /// The "("
+        /// </summary>
+        public const string LeftParenthesis = "(";
 
         #endregion
 

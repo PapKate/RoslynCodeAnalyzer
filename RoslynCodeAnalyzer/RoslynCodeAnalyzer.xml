@@ -34,9 +34,34 @@
             The "param"
             </summary>
         </member>
+        <member name="F:RoslynCodeAnalyzer.Constants.ParameterReferenceTag">
+            <summary>
+            The "paramref"
+            </summary>
+        </member>
         <member name="F:RoslynCodeAnalyzer.Constants.SummaryTag">
             <summary>
             The "summary"
+            </summary>
+        </member>
+        <member name="F:RoslynCodeAnalyzer.Constants.MemberTag">
+            <summary>
+            The "member"
+            </summary>
+        </member>
+        <member name="F:RoslynCodeAnalyzer.Constants.NameTag">
+            <summary>
+            The "name"
+            </summary>
+        </member>
+        <member name="F:RoslynCodeAnalyzer.Constants.SeeTag">
+            <summary>
+            The "see"
+            </summary>
+        </member>
+        <member name="F:RoslynCodeAnalyzer.Constants.CrefTag">
+            <summary>
+            The "cref"
             </summary>
         </member>
         <member name="F:RoslynCodeAnalyzer.Constants.CarriageReturn">
@@ -54,6 +79,16 @@
             The "///"
             </summary>
         </member>
+        <member name="F:RoslynCodeAnalyzer.Constants.Dot">
+            <summary>
+            The "."
+            </summary>
+        </member>
+        <member name="F:RoslynCodeAnalyzer.Constants.LeftParenthesis">
+            <summary>
+            The "("
+            </summary>
+        </member>
         <member name="T:RoslynCodeAnalyzer.MethodCommentInformation">
             <summary>
             Provides information about the documentation comments of a method
@@ -67,6 +102,11 @@
         <member name="P:RoslynCodeAnalyzer.MethodCommentInformation.SummaryComments">
             <summary>
             The summary comments
+            </summary>
+        </member>
+        <member name="P:RoslynCodeAnalyzer.MethodCommentInformation.References">
+            <summary>
+            The references in the comments
             </summary>
         </member>
         <member name="P:RoslynCodeAnalyzer.MethodCommentInformation.SummaryCommentParameters">
@@ -144,6 +184,21 @@
             Cleans and formats the summary comments
             </summary>
             <param name="value"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RoslynCodeAnalyzer.HelperMethods.GetAttributeName(System.Xml.XmlNode)">
+            <summary>
+            Returns the node's name attribute's value
+            </summary>
+            <param name="node">The xml node</param>
+            <returns></returns>
+        </member>
+        <member name="M:RoslynCodeAnalyzer.HelperMethods.GetAttributeName(System.Xml.XmlNode,System.String)">
+            <summary>
+            Returns the node's tag attribute's value
+            </summary>
+            <param name="node">The xml node</param>
+            <param name="tag">The attributes's name</param>
             <returns></returns>
         </member>
         <member name="M:RoslynCodeAnalyzer.HelperMethods.MissingParamCommentsOutputError(Microsoft.CodeAnalysis.SyntaxToken)">
@@ -298,6 +353,13 @@
             <summary>
             Analyzes an XML file
             </summary>
+        </member>
+        <member name="M:RoslynCodeAnalyzer.XmlAnalyzer.FormatMethodName(System.String)">
+            <summary>
+            Formats a method's full name
+            </summary>
+            <param name="value">The method's full name</param>
+            <returns></returns>
         </member>
     </members>
 </doc>

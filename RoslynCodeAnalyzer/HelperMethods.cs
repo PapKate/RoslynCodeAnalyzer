@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Xml;
 
 namespace RoslynCodeAnalyzer
 {
@@ -64,6 +65,23 @@ namespace RoslynCodeAnalyzer
             // Returns the new value
             return value;
         }
+
+        /// <summary>
+        /// Returns the node's name attribute's value
+        /// </summary>
+        /// <param name="node">The xml node</param>
+        /// <returns></returns>
+        public static string GetAttributeName(this XmlNode node) => node.Attributes.GetNamedItem(Constants.NameTag).Value;
+
+        /// <summary>
+        /// Returns the node's tag attribute's value
+        /// </summary>
+        /// <param name="node">The xml node</param>
+        /// <param name="tag">The attributes's name</param>
+        /// <returns></returns>
+        public static string GetAttributeName(this XmlNode node, string tag) => node.Attributes.GetNamedItem(tag).Value;
+
+
 
         #region Errors
 
