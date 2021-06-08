@@ -81,7 +81,7 @@ namespace RoslynCodeAnalyzer
         /// <returns></returns>
         public static string GetAttributeName(this XmlNode node, string tag) => node.Attributes.GetNamedItem(tag).Value;
 
-
+        
 
         #region Errors
 

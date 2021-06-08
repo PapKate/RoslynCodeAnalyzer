@@ -19,6 +19,20 @@
 
         #endregion
 
+        #region Xml Members
+
+        /// <summary>
+        /// The start summary tag
+        /// </summary>
+        public const string SummaryXmlStartMember = "<summary>";
+
+        /// <summary>
+        /// The end summary tag
+        /// </summary>
+        public const string SummaryXmlEndMember = "</summary>";
+
+        #endregion
+
         #region Tags
 
         /// <summary>

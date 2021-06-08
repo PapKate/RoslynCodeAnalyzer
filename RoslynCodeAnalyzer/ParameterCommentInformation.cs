@@ -28,11 +28,6 @@ namespace RoslynCodeAnalyzer
         public XmlElementSyntax XmlElement { get; set; }
 
         /// <summary>
-        /// The references in the comments
-        /// </summary>
-        public List<string> References { get; set; }
-
-        /// <summary>
         /// The parameters that are used in the <see cref="Comments"/>
         /// </summary>
         public IEnumerable<ParameterCommentInformation> CommentParameters { get; set; }

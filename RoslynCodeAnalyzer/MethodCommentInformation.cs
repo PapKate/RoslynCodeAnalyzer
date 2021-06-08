@@ -20,11 +20,6 @@ namespace RoslynCodeAnalyzer
 	    public string SummaryComments { get; set; }
 
         /// <summary>
-        /// The references in the comments
-        /// </summary>
-        public List<string> References { get; set; }
-
-        /// <summary>
         /// The parameters that are used in the <see cref="SummaryComments"/> <see cref="MethodName"/>
         /// </summary>
         public IEnumerable<ParameterCommentInformation> SummaryCommentParameters { get; set; }
@@ -53,7 +48,7 @@ namespace RoslynCodeAnalyzer
         /// <summary>
         /// Testing the specified <paramref name="comments"/> yes <see cref="SummaryComments"/>
         /// </summary>
-        /// <param name="comments">Thee comments <paramref name="oof"/> <paramref name="comments"/></param>
+        /// <param name="comments">Thee comments <paramref name="oof"/> <see cref="ParameterCommentInformation.Name"/> <paramref name="comments"/></param>
         /// <param name="test">The test rgdrg
         /// drgrdgdrgdrgt</param>
         /// <param name="oof">Aaaaaaaa <paramref name="comments"/></param>

@@ -26,6 +26,9 @@ namespace RoslynCodeAnalyzer
             // Gets all the elements with tag <member>
             var members = doc.GetElementsByTagName(Constants.MemberTag);
 
+            var properties = new List<PropertyCommentInformation>();
+            var methods = new List<MethodCommentInformation>();
+
             // For each member in the xml file...
             foreach (var member in members)
             {
@@ -36,10 +39,52 @@ namespace RoslynCodeAnalyzer
                 // Meaning if the member is a property...
                 if (memberNode.Attributes.GetNamedItem(Constants.NameTag).InnerXml.StartsWith("P:"))
                 {
-                    // Sets as summary the inner xml of the member
-                    var summary = memberNode.InnerXml;
+                    var propertyName = memberNode.GetAttributeName();
 
-                    Console.WriteLine(summary);
+                    // Sets as summary the inner xml of the member
+                    var propertySummary = memberNode.InnerXml.Replace(Constants.SummaryXmlStartMember, string.Empty)
+                                                             .Replace(Constants.SummaryXmlEndMember, string.Empty);
+
+                    // Filters and cleans the text
+                    propertySummary = HelperMethods.CleanedCommentsString(propertySummary);
+
+                    // Creates a new property comment information
+                    var propertyCommentInformation = new PropertyCommentInformation
+                    {
+                        Name = propertyName,
+                        Comments = propertySummary
+                    };
+
+                    // A new list for the comments in the property's summary
+                    var propertyCommentCrefs = new List<ParameterCommentInformation>();
+
+                    // For each child node in the property's summary node
+                    foreach(var propertyChildData in memberNode.ChildNodes[0].ChildNodes)
+                    {
+                        // Parses it to an xml node
+                        var node = (XmlNode)propertyChildData;
+
+                        // If the node's name is "see"
+                        if (node.Name == Constants.SeeTag)
+                        {
+                            // Gets the cref's name
+                            var crefName = node.GetAttributeName(Constants.CrefTag);
+
+                            // Sets as method's name the character set after the last '.'
+                            crefName = crefName.Substring(crefName.LastIndexOf(Constants.Dot) + 1);
+
+                            // Creates a new param comment information with name the cref's name
+                            propertyCommentCrefs.Add(new ParameterCommentInformation() { Name = crefName });
+                        }
+                    }
+
+                    // Sets as comment crefs the crefs found before 
+                    propertyCommentInformation.CommentCref = propertyCommentCrefs;
+
+                    // Adds the property comment information
+                    properties.Add(propertyCommentInformation);
+
+                    Console.WriteLine(propertySummary);
                 }
                 // Else if the name attribute of the member starts with "M:"...
                 // Meaning if the member is a method OR constructor...
@@ -49,7 +94,8 @@ namespace RoslynCodeAnalyzer
                     var methodName = FormatMethodName(memberNode.GetAttributeName());
 
                     // Gets the member node's inner text
-                    var methodSummary = memberNode.InnerText;
+                    var methodSummary = memberNode.InnerXml.Substring(0, memberNode.InnerXml.LastIndexOf(Constants.SummaryXmlEndMember))
+                                        .Replace(Constants.SummaryXmlStartMember, string.Empty).Replace(Constants.SummaryXmlEndMember, string.Empty);
 
                     // Filters and cleans the text
                     methodSummary = HelperMethods.CleanedCommentsString(methodSummary);
@@ -69,36 +115,8 @@ namespace RoslynCodeAnalyzer
                         // Parses the child to an Xml node
                         var node = (XmlNode)childNode;
                         
-                        // If the node's name is "summary"
-                        if(node.Name == Constants.SummaryTag)
-                        {
-                            var summaryChildNodes = node.ChildNodes;
-                            
-                            var summaryRefs = new List<string>();
-
-                            foreach (var summaryChildData in summaryChildNodes)
-                            {
-                                var summaryChildNode = (XmlNode)summaryChildData;
-
-                                // If the node is of type Element...
-                                if (summaryChildNode.NodeType == XmlNodeType.Element)
-                                    if(summaryChildNode.Name == Constants.ParameterReferenceTag)
-                                        summaryRefs.Add(summaryChildNode.Attributes.GetNamedItem(Constants.NameTag).Value);
-                                    else if(summaryChildNode.Name == Constants.SeeTag)
-                                    {
-                                        var crefName = summaryChildNode.GetAttributeName(Constants.CrefTag);
-
-                                        // Sets as method's name the character set after the last '.'
-                                        crefName = crefName.Substring(crefName.LastIndexOf(Constants.Dot) + 1);
-                                        
-                                        summaryRefs.Add(crefName);
-                                    }
-                            }
-
-                            methodCommentInformation.References = summaryRefs;
-                        }
-                        // Else if the node's name is "param"...
-                        else if(node.Name == Constants.ParameterTag)
+                        // If the node's name is "param"...
+                        if(node.Name == Constants.ParameterTag)
                         {
                             //  Creates a new parameter comment information
                             var parameterCommentInformation = new ParameterCommentInformation
@@ -107,50 +125,76 @@ namespace RoslynCodeAnalyzer
                                 Comments = node.InnerXml
                             };
 
-                            // Gets the child nodes of the node
-                            var paramNodes = node.ChildNodes;
-                            
-                            var paramRefs = new List<string>();
-
-                            // For each param in the nodes...
-                            foreach (var paramData in paramNodes)
-                            {
-                                // Parses the paramData from obj to Xml node
-                                var paramNode = (XmlNode)paramData;
-                                
-                                // If the node is of type Element...
-                                if (paramNode.NodeType == XmlNodeType.Element)
-                                    paramRefs.Add(paramNode.GetAttributeName(Constants.NameTag));
-                            }
-
-                            // Sets as references the found parmRefs
-                            // Meaning the names of the parameters mentioned in the comments
-                            parameterCommentInformation.References = paramRefs;
-
                             // Adds to the parameters the parameter
                             tempParameters.Add(parameterCommentInformation);
                         }
                     }
 
-                    var paramRefrences = new List<ParameterCommentInformation>();
-
-                    foreach(var tempParam in tempParameters)
+                    // For each child node of the member node...
+                    foreach (var childNode in memberNode.ChildNodes)
                     {
-                        paramRefrences.Add(new ParameterCommentInformation()
-                        {
-                            Name = tempParam.Name,
-                            Comments = tempParam.Comments,
-                        });
+                        // Parses the child to an Xml node
+                        var node = (XmlNode)childNode;
 
+                        // Gets the child nodes of the node
+                        var paramNodes = node.ChildNodes;
+
+                        // Creates a list for the references in the comments
                         var commentParameters = new List<ParameterCommentInformation>();
 
-                        tempParam.References.ForEach(x => 
-                                    commentParameters.Add(tempParameters.FirstOrDefault(y => y.Name == x) 
-                                                        ?? new ParameterCommentInformation() { Name = x })
-                                                    );
-                        tempParam.CommentParameters = commentParameters;
-                    }
+                        // If the node's name is "summary"
+                        if (node.Name == Constants.SummaryTag)
+                        {
+                            // Gets the summary's child nodes
+                            var summaryChildNodes = node.ChildNodes;
 
+                            // For each child node...
+                            foreach (var summaryChildData in summaryChildNodes)
+                            {
+                                // Parses the child from object to xml node
+                                var summaryChildNode = (XmlNode)summaryChildData;
+
+                                // If the node is of type Element...
+                                if (summaryChildNode.NodeType == XmlNodeType.Element)
+                                {
+                                    // Gets the element's name
+                                    var nodeName = GetNodeElementName(summaryChildNode);
+                                    // Adds the parameter information to the list
+                                    commentParameters.Add(
+                                            // Gets the first param info that has the same name as the node if exists...
+                                            tempParameters.FirstOrDefault(x => x.Name == nodeName)
+                                            // Else creates a new param info with name the node's name
+                                            ?? new ParameterCommentInformation() { Name = nodeName }
+                                        );
+                                }
+                            }
+
+                            // Sets as summary comments the references found
+                            methodCommentInformation.SummaryCommentParameters = commentParameters;
+                        }
+                        // If the node's name is "param"...
+                        else if (node.Name == Constants.ParameterTag)
+                        {
+                            // For each param in the nodes...
+                            foreach (var paramData in paramNodes)
+                            {
+                                // Parses the paramData from obj to Xml node
+                                var paramNode = (XmlNode)paramData;
+
+                                // If the node is of type Element...
+                                if (paramNode.NodeType == XmlNodeType.Element)
+                                {
+                                    var nodeName = GetNodeElementName(paramNode);
+                                    commentParameters.Add(
+                                            tempParameters.FirstOrDefault(x => x.Name == nodeName)
+                                            ?? new ParameterCommentInformation() { Name = nodeName }
+                                        );
+                                }
+                            }
+
+                            tempParameters.First(x => x.Name == node.GetAttributeName()).CommentParameters = commentParameters;
+                        }
+                    }
 
                     Console.WriteLine(methodCommentInformation.SummaryComments);
                 }
@@ -175,6 +219,55 @@ namespace RoslynCodeAnalyzer
 
             // Returns the formatted value
             return value;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="node"></param>
+        /// <returns></returns>
+        public string GetNodeElementName(XmlNode node)
+        {
+            if (node.Name == Constants.ParameterReferenceTag)
+                return node.Attributes.GetNamedItem(Constants.NameTag).Value;
+            else if (node.Name == Constants.SeeTag)
+            {
+                var crefName = node.GetAttributeName(Constants.CrefTag);
+
+                // Sets as method's name the character set after the last '.'
+                return crefName.Substring(crefName.LastIndexOf(Constants.Dot) + 1);
+            }
+            return string.Empty;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="nodeList"></param>
+        /// <param name="multipleParameterCommentInformation"></param>
+        /// <param name="commentParameters"></param>
+        public void SetCommentReferences(XmlNodeList nodeList, List<ParameterCommentInformation> multipleParameterCommentInformation, List<ParameterCommentInformation> commentParameters)
+        {
+            // For each param in the nodes...
+            foreach (var data in nodeList)
+            {
+                // Parses the child from object to xml node
+                var node = (XmlNode)data;
+
+                // If the node is of type Element...
+                if (node.NodeType == XmlNodeType.Element)
+                {
+                    // Gets the element's name
+                    var nodeName = GetNodeElementName(node);
+                    // Adds the parameter information to the list
+                    commentParameters.Add(
+                            // Gets the first param info that has the same name as the node if exists...
+                            commentParameters.FirstOrDefault(x => x.Name == nodeName)
+                            // Else creates a new param info with name the node's name
+                            ?? new ParameterCommentInformation() { Name = nodeName }
+                        );
+                }
+            }
         }
 
         #endregion
