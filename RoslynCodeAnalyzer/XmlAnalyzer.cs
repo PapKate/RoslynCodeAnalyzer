@@ -26,8 +26,7 @@ namespace RoslynCodeAnalyzer
             // Gets all the elements with tag <member>
             var members = doc.GetElementsByTagName(Constants.MemberTag);
 
-            var properties = new List<PropertyCommentInformation>();
-            var methods = new List<MethodCommentInformation>();
+            var classes = new List<ClassCommentInformation>();
 
             // For each member in the xml file...
             foreach (var member in members)
@@ -35,11 +34,50 @@ namespace RoslynCodeAnalyzer
                 // Parses the member from object to XmlNode
                 var memberNode = (XmlNode)member;
 
-                // If the name attribute of the member starts with "P:"...
-                // Meaning if the member is a property...
-                if (memberNode.Attributes.GetNamedItem(Constants.NameTag).InnerXml.StartsWith("P:"))
+                // If the name attribute of the member starts with "T:"...
+                // Meaning if the member is a class...
+                if (memberNode.Attributes.GetNamedItem(Constants.NameTag).InnerXml.StartsWith("T:"))
                 {
-                    var propertyName = memberNode.GetAttributeName();
+                    var className = memberNode.GetAttributeName().GetLastNameAfterDot();
+
+                    // If the class has no comments...
+                    if (memberNode.InnerText == string.Empty)
+                        // Prints in the out put console a message
+                        HelperMethods.MissingSummaryCommentsOutputError(className, "class");
+
+                    // Sets as summary the inner xml of the member
+                    var classSummary = memberNode.InnerXml.Replace(Constants.SummaryXmlStartMember, string.Empty)
+                                                          .Replace(Constants.SummaryXmlEndMember, string.Empty);
+
+                    // Filters and cleans the text
+                    classSummary = HelperMethods.CleanedCommentsString(classSummary);
+
+                    // Creates a new class comment information object
+                    var classCommentInformation = new ClassCommentInformation()
+                    {
+                        Name = className,
+                        Comments = classSummary
+                    };
+
+                    // Adds to the classes list the class
+                    classes.Add(classCommentInformation);
+                }
+                // Else if the name attribute of the member starts with "P:"...
+                // Meaning if the member is a property...
+                else if (memberNode.Attributes.GetNamedItem(Constants.NameTag).InnerXml.StartsWith("P:"))
+                {
+                    // Gets the property's name
+                    var propertyName = memberNode.GetAttributeName().GetLastNameAfterDot();
+
+                    // If the property does not have any comments...
+                    if(memberNode.InnerText == string.Empty)
+                    {
+                        // Prints in the out put console a message
+                        HelperMethods.MissingSummaryCommentsOutputError(propertyName, "property");
+                        
+                        // Continues
+                        continue;
+                    }
 
                     // Sets as summary the inner xml of the member
                     var propertySummary = memberNode.InnerXml.Replace(Constants.SummaryXmlStartMember, string.Empty)
@@ -79,12 +117,12 @@ namespace RoslynCodeAnalyzer
                     }
 
                     // Sets as comment crefs the crefs found before 
-                    propertyCommentInformation.CommentCref = propertyCommentCrefs;
+                    propertyCommentInformation.CommentParameters = propertyCommentCrefs;
 
-                    // Adds the property comment information
-                    properties.Add(propertyCommentInformation);
-
-                    Console.WriteLine(propertySummary);
+                    // Finds the first class that its name the property's full name contains and...
+                    classes.First(x => memberNode.GetAttributeName().Contains(x.Name))
+                                         // Adds the property comment info to its properties' list
+                                        .Properties.Add(propertyCommentInformation);
                 }
                 // Else if the name attribute of the member starts with "M:"...
                 // Meaning if the member is a method OR constructor...
@@ -93,9 +131,19 @@ namespace RoslynCodeAnalyzer
                     // Sets as the method's name from the member node the name attribute's value formatted accordingly
                     var methodName = FormatMethodName(memberNode.GetAttributeName());
 
+                    if(memberNode.InnerText == string.Empty)
+                    {
+                        // Prints in the out put console a message
+                        HelperMethods.MissingSummaryCommentsOutputError(methodName, "method");
+
+                        // Continues
+                        continue;
+                    }
+
                     // Gets the member node's inner text
                     var methodSummary = memberNode.InnerXml.Substring(0, memberNode.InnerXml.LastIndexOf(Constants.SummaryXmlEndMember))
-                                        .Replace(Constants.SummaryXmlStartMember, string.Empty).Replace(Constants.SummaryXmlEndMember, string.Empty);
+                                        .Replace(Constants.SummaryXmlStartMember, string.Empty)
+                                        .Replace(Constants.SummaryXmlEndMember, string.Empty);
 
                     // Filters and cleans the text
                     methodSummary = HelperMethods.CleanedCommentsString(methodSummary);
@@ -103,8 +151,8 @@ namespace RoslynCodeAnalyzer
                     // Creates a new method comment information with name the methodName and summary comments the summary
                     var methodCommentInformation = new MethodCommentInformation
                     {
-                        MethodName = methodName,
-                        SummaryComments = methodSummary
+                        Name = methodName,
+                        Comments = methodSummary
                     };
 
                     var tempParameters = new List<ParameterCommentInformation>();
@@ -195,8 +243,12 @@ namespace RoslynCodeAnalyzer
                             tempParameters.First(x => x.Name == node.GetAttributeName()).CommentParameters = commentParameters;
                         }
                     }
+                    // Finds the first class that its name the method's full name contains and...
+                    classes.First(x => memberNode.GetAttributeName().Contains(x.Name))
+                                        // Adds the method comment info to its methods' list
+                                        .Methods.Add(methodCommentInformation);
 
-                    Console.WriteLine(methodCommentInformation.SummaryComments);
+                    Console.WriteLine(methodCommentInformation.Comments);
                 }
             }
         }
@@ -215,37 +267,45 @@ namespace RoslynCodeAnalyzer
                 value = value.Substring(0, value.IndexOf(Constants.LeftParenthesis));
 
             // Sets as method's name the character set after the last .
-            value = value.Substring(value.LastIndexOf(Constants.Dot) + 1);
+            value = value.GetLastNameAfterDot();
 
             // Returns the formatted value
             return value;
         }
 
         /// <summary>
-        /// 
+        /// Gets the name from a node of type element
         /// </summary>
-        /// <param name="node"></param>
+        /// <param name="node">The node</param>
         /// <returns></returns>
         public string GetNodeElementName(XmlNode node)
         {
+            // If the node is a paramref...
             if (node.Name == Constants.ParameterReferenceTag)
-                return node.Attributes.GetNamedItem(Constants.NameTag).Value;
+                // Returns the name attribute's value
+                return node.GetAttributeName();
+            // Else if the node is a see...
             else if (node.Name == Constants.SeeTag)
             {
+                // Gets the cref attribute's value
                 var crefName = node.GetAttributeName(Constants.CrefTag);
 
                 // Sets as method's name the character set after the last '.'
-                return crefName.Substring(crefName.LastIndexOf(Constants.Dot) + 1);
+                return crefName.GetLastNameAfterDot();
             }
+            // Returns an empty string
             return string.Empty;
         }
 
         /// <summary>
-        /// 
+        /// Gets from the given <paramref name="nodeList"/> the empty elements' names of the each node's summary
+        /// Searches through the <paramref name="multipleParameterCommentInformation"/> if an object with the same name already exists...
+        /// If yes adds it to the <paramref name="commentParameters"/>...
+        /// Else creates a new object and adds that to the list
         /// </summary>
-        /// <param name="nodeList"></param>
-        /// <param name="multipleParameterCommentInformation"></param>
-        /// <param name="commentParameters"></param>
+        /// <param name="nodeList">The list of nodes</param>
+        /// <param name="multipleParameterCommentInformation">The parameters of a method</param>
+        /// <param name="commentParameters">The references in the comments</param>
         public void SetCommentReferences(XmlNodeList nodeList, List<ParameterCommentInformation> multipleParameterCommentInformation, List<ParameterCommentInformation> commentParameters)
         {
             // For each param in the nodes...
@@ -260,7 +320,7 @@ namespace RoslynCodeAnalyzer
                     // Gets the element's name
                     var nodeName = GetNodeElementName(node);
                     // Adds the parameter information to the list
-                    commentParameters.Add(
+                    multipleParameterCommentInformation.Add(
                             // Gets the first param info that has the same name as the node if exists...
                             commentParameters.FirstOrDefault(x => x.Name == nodeName)
                             // Else creates a new param info with name the node's name

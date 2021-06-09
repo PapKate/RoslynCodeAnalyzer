@@ -8,19 +8,9 @@ namespace RoslynCodeAnalyzer
     /// <summary>
     /// Provides information about the document comments of a parameter of a method
     /// </summary>
-    public class ParameterCommentInformation    
+    public class ParameterCommentInformation : BaseCommentInformation
     {
         #region Public Properties
-
-        /// <summary>
-        /// The parameter's name
-        /// </summary>
-        public string Name { get; set; }
-
-        /// <summary>
-        /// The parameter's description
-        /// </summary>
-        public string Comments { get; set; }
 
         /// <summary>
         /// The xml element
@@ -28,7 +18,7 @@ namespace RoslynCodeAnalyzer
         public XmlElementSyntax XmlElement { get; set; }
 
         /// <summary>
-        /// The parameters that are used in the <see cref="Comments"/>
+        /// The parameters that are used in the <see cref="BaseCommentInformation.Comments"/>
         /// </summary>
         public IEnumerable<ParameterCommentInformation> CommentParameters { get; set; }
 

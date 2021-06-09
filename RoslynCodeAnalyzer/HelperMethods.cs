@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -81,7 +82,19 @@ namespace RoslynCodeAnalyzer
         /// <returns></returns>
         public static string GetAttributeName(this XmlNode node, string tag) => node.Attributes.GetNamedItem(tag).Value;
 
-        
+        /// <summary>
+        /// Gets the last character set that are after the last "."
+        /// </summary>
+        /// <param name="value">The value</param>
+        /// <returns></returns>
+        public static string GetLastNameAfterDot(this string value)
+        {
+            // Sets as value the character set after the last "."
+            value = value.Substring(value.LastIndexOf(Constants.Dot) + 1);
+
+            // Returns the new value
+            return value;
+        }
 
         #region Errors
 
@@ -90,17 +103,29 @@ namespace RoslynCodeAnalyzer
         /// </summary>
         /// <param name="identifier">The identifier</param>
         /// <returns></returns>
-        public static string MissingParamCommentsOutputError(SyntaxToken identifier)
-            => $"The method with name: {identifier} does NOT have any <param> comments </param> for its parameters";
+        public static string MissingParamCommentsOutputError(string identifier)
+        {
+            var value = $"The method with name: {identifier} does NOT have any <param> comments </param> for its parameters";
+          
+            Debug.WriteLine(value);
+            
+            return value;
+        }
 
         /// <summary>
         /// Prints message to the output console
         /// </summary>
-        /// <param name="identifier">The identifier</param>
+        /// <param name="name">The name</param>
         /// <param name="declarationSyntaxType">Whether a method or a property</param>
         /// <returns></returns>
-        public static string MissingSummaryCommentsOutputError(SyntaxToken identifier, string declarationSyntaxType)
-            => $"The {declarationSyntaxType} with name: {identifier} does NOT have any <summary> comments </summary>";
+        public static string MissingSummaryCommentsOutputError(string name, string declarationSyntaxType)
+        {
+            var value = $"The {declarationSyntaxType} with name: {name} does NOT have any <summary> comments </summary>";
+
+            Debug.WriteLine(value);
+
+            return value;
+        }
 
         #endregion
 

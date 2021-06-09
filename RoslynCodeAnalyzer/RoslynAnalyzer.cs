@@ -36,7 +36,6 @@ namespace RoslynCodeAnalyzer
 
         #endregion
 
-
         #region Public Methods
 
         /// <summary>
@@ -84,7 +83,7 @@ namespace RoslynCodeAnalyzer
                     { 
                         Name = property.Identifier.ToString(),
                         Comments = clean.ToString(),
-                        CommentCref = list
+                        CommentParameters = list
                     });
                 }
 
@@ -105,8 +104,8 @@ namespace RoslynCodeAnalyzer
 
                     var methodCommentsData = new MethodCommentInformation()
                     {
-                        MethodName = method.Identifier.ToString(),
-                        SummaryComments = GetSummaryComments(summary)
+                        Name = method.Identifier.ToString(),
+                        Comments = GetSummaryComments(summary)
                     };
 
                     // Gets all the child nodes the have the start tag <param> and adds them to a list
@@ -120,7 +119,7 @@ namespace RoslynCodeAnalyzer
                         && method.ParameterList.Parameters.Count != 0)
                     {
                         // Prints message to the output console
-                        HelperMethods.MissingParamCommentsOutputError(method.Identifier);
+                        HelperMethods.MissingParamCommentsOutputError(method.Identifier.ToString());
                         // Returns
                         continue;
                     }
@@ -167,7 +166,7 @@ namespace RoslynCodeAnalyzer
 
             foreach (var methodData in multipleMethodCommentsData)
             {
-                Console.WriteLine($"Method Name : {methodData.MethodName}\nSummary : {methodData.SummaryComments}\n");
+                Console.WriteLine($"Method Name : {methodData.Name}\nSummary : {methodData.Comments}\n");
             }
         }
 
@@ -217,7 +216,7 @@ namespace RoslynCodeAnalyzer
             if (summary == null)
             {
                 // Prints message to the output console
-                HelperMethods.MissingSummaryCommentsOutputError(identifier, declarationSyntaxType);
+                HelperMethods.MissingSummaryCommentsOutputError(identifier.ToString(), declarationSyntaxType);
                 // Returns
                 return null;
             }

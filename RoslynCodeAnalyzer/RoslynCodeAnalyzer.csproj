@@ -78,6 +78,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BaseCommentInformation.cs" />
+    <Compile Include="ClassCommentInformation.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="MethodCommentInformation.cs" />
     <Compile Include="HelperMethods.cs" />

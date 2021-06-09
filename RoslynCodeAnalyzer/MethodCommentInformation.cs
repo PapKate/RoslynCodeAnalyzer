@@ -5,22 +5,12 @@ namespace RoslynCodeAnalyzer
     /// <summary>
     /// Provides information about the documentation comments of a method
     /// </summary>
-    public class MethodCommentInformation
+    public class MethodCommentInformation : BaseCommentInformation
     {
         #region Public Properties
 
         /// <summary>
-        /// The method's name
-        /// </summary>
-        public string MethodName { get; set; }
-
-        /// <summary>
-        /// The summary comments
-        /// </summary>
-	    public string SummaryComments { get; set; }
-
-        /// <summary>
-        /// The parameters that are used in the <see cref="SummaryComments"/> <see cref="MethodName"/>
+        /// The parameters that are used in the <see cref="BaseCommentInformation.Comments"/> <see cref="BaseCommentInformation.Name"/>
         /// </summary>
         public IEnumerable<ParameterCommentInformation> SummaryCommentParameters { get; set; }
 
@@ -46,9 +36,9 @@ namespace RoslynCodeAnalyzer
         #region Public Methods
 
         /// <summary>
-        /// Testing the specified <paramref name="comments"/> yes <see cref="SummaryComments"/>
+        /// Testing the specified <paramref name="comments"/> yes <see cref="BaseCommentInformation.Comments"/>
         /// </summary>
-        /// <param name="comments">Thee comments <paramref name="oof"/> <see cref="ParameterCommentInformation.Name"/> <paramref name="comments"/></param>
+        /// <param name="comments">Thee comments <paramref name="oof"/> <see cref="BaseCommentInformation.Name"/> <paramref name="comments"/></param>
         /// <param name="test">The test rgdrg
         /// drgrdgdrgdrgt</param>
         /// <param name="oof">Aaaaaaaa <paramref name="comments"/></param>
