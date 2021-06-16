@@ -2,11 +2,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace RoslynCodeAnalyzer
 {
     /// <summary>
-    /// Provides information about the document comments of a parameter of a method
+    /// Provides information about the documentation comments of a parameter of a method
     /// </summary>
     public class ParameterCommentInformation : BaseCommentInformation
     {
@@ -20,7 +21,7 @@ namespace RoslynCodeAnalyzer
         /// <summary>
         /// The parameters that are used in the <see cref="BaseCommentInformation.Comments"/>
         /// </summary>
-        public IEnumerable<ParameterCommentInformation> CommentParameters { get; set; }
+        public IEnumerable<ParameterCommentInformation> CommentParameters { get; set; } = Enumerable.Empty<ParameterCommentInformation>();
 
         #endregion
 

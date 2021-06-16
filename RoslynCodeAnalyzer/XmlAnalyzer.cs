@@ -68,24 +68,25 @@ namespace RoslynCodeAnalyzer
                 {
                     // Gets the property's name
                     var propertyName = memberNode.GetAttributeName().GetLastNameAfterDot();
+                    
+                    var propertySummary = string.Empty;
 
                     // If the property does not have any comments...
-                    if(memberNode.InnerText == string.Empty)
+                    if (memberNode.InnerText == string.Empty)
                     {
                         // Prints in the out put console a message
-                        HelperMethods.MissingSummaryCommentsOutputError(propertyName, "property");
-                        
-                        // Continues
-                        continue;
+                        HelperMethods.MissingSummaryCommentsOutputError(propertyName, Constants.PropertyTag);
                     }
+                    else
+                    {
+                        // Sets as summary the inner xml of the member
+                        propertySummary = memberNode.InnerXml.Replace(Constants.SummaryXmlStartMember, string.Empty)
+                                                                 .Replace(Constants.SummaryXmlEndMember, string.Empty);
 
-                    // Sets as summary the inner xml of the member
-                    var propertySummary = memberNode.InnerXml.Replace(Constants.SummaryXmlStartMember, string.Empty)
-                                                             .Replace(Constants.SummaryXmlEndMember, string.Empty);
-
-                    // Filters and cleans the text
-                    propertySummary = HelperMethods.CleanedCommentsString(propertySummary);
-
+                        // Filters and cleans the text
+                        propertySummary = HelperMethods.CleanedCommentsString(propertySummary);
+                    }
+                   
                     // Creates a new property comment information
                     var propertyCommentInformation = new PropertyCommentInformation
                     {
@@ -95,9 +96,9 @@ namespace RoslynCodeAnalyzer
 
                     // A new list for the comments in the property's summary
                     var propertyCommentCrefs = new List<ParameterCommentInformation>();
-
+                    
                     // For each child node in the property's summary node
-                    foreach(var propertyChildData in memberNode.ChildNodes[0].ChildNodes)
+                    foreach (var propertyChildData in memberNode.ChildNodes[0].ChildNodes)
                     {
                         // Parses it to an xml node
                         var node = (XmlNode)propertyChildData;
@@ -110,6 +111,8 @@ namespace RoslynCodeAnalyzer
 
                             // Sets as method's name the character set after the last '.'
                             crefName = crefName.Substring(crefName.LastIndexOf(Constants.Dot) + 1);
+
+                            crefName = GetNodeElementName(node);
 
                             // Creates a new param comment information with name the cref's name
                             propertyCommentCrefs.Add(new ParameterCommentInformation() { Name = crefName });
@@ -131,22 +134,22 @@ namespace RoslynCodeAnalyzer
                     // Sets as the method's name from the member node the name attribute's value formatted accordingly
                     var methodName = FormatMethodName(memberNode.GetAttributeName());
 
+                    var methodSummary = string.Empty;
+                    
                     if(memberNode.InnerText == string.Empty)
                     {
                         // Prints in the out put console a message
                         HelperMethods.MissingSummaryCommentsOutputError(methodName, "method");
-
-                        // Continues
-                        continue;
                     }
-
-                    // Gets the member node's inner text
-                    var methodSummary = memberNode.InnerXml.Substring(0, memberNode.InnerXml.LastIndexOf(Constants.SummaryXmlEndMember))
-                                        .Replace(Constants.SummaryXmlStartMember, string.Empty)
-                                        .Replace(Constants.SummaryXmlEndMember, string.Empty);
-
-                    // Filters and cleans the text
-                    methodSummary = HelperMethods.CleanedCommentsString(methodSummary);
+                    else
+                    {
+                        // Gets the member node's inner text
+                        methodSummary = memberNode.InnerXml.Substring(0, memberNode.InnerXml.LastIndexOf(Constants.SummaryXmlEndMember))
+                                            .Replace(Constants.SummaryXmlStartMember, string.Empty)
+                                            .Replace(Constants.SummaryXmlEndMember, string.Empty);
+                        // Filters and cleans the text
+                        methodSummary = HelperMethods.CleanedCommentsString(methodSummary);
+                    }
 
                     // Creates a new method comment information with name the methodName and summary comments the summary
                     var methodCommentInformation = new MethodCommentInformation
@@ -170,7 +173,7 @@ namespace RoslynCodeAnalyzer
                             var parameterCommentInformation = new ParameterCommentInformation
                             {
                                 Name = node.GetAttributeName(),
-                                Comments = node.InnerXml
+                                Comments = HelperMethods.CleanedCommentsString(node.InnerXml)
                             };
 
                             // Adds to the parameters the parameter
@@ -196,26 +199,7 @@ namespace RoslynCodeAnalyzer
                             // Gets the summary's child nodes
                             var summaryChildNodes = node.ChildNodes;
 
-                            // For each child node...
-                            foreach (var summaryChildData in summaryChildNodes)
-                            {
-                                // Parses the child from object to xml node
-                                var summaryChildNode = (XmlNode)summaryChildData;
-
-                                // If the node is of type Element...
-                                if (summaryChildNode.NodeType == XmlNodeType.Element)
-                                {
-                                    // Gets the element's name
-                                    var nodeName = GetNodeElementName(summaryChildNode);
-                                    // Adds the parameter information to the list
-                                    commentParameters.Add(
-                                            // Gets the first param info that has the same name as the node if exists...
-                                            tempParameters.FirstOrDefault(x => x.Name == nodeName)
-                                            // Else creates a new param info with name the node's name
-                                            ?? new ParameterCommentInformation() { Name = nodeName }
-                                        );
-                                }
-                            }
+                            SetCommentReferences(summaryChildNodes, commentParameters, tempParameters);
 
                             // Sets as summary comments the references found
                             methodCommentInformation.SummaryCommentParameters = commentParameters;
@@ -223,26 +207,14 @@ namespace RoslynCodeAnalyzer
                         // If the node's name is "param"...
                         else if (node.Name == Constants.ParameterTag)
                         {
-                            // For each param in the nodes...
-                            foreach (var paramData in paramNodes)
-                            {
-                                // Parses the paramData from obj to Xml node
-                                var paramNode = (XmlNode)paramData;
-
-                                // If the node is of type Element...
-                                if (paramNode.NodeType == XmlNodeType.Element)
-                                {
-                                    var nodeName = GetNodeElementName(paramNode);
-                                    commentParameters.Add(
-                                            tempParameters.FirstOrDefault(x => x.Name == nodeName)
-                                            ?? new ParameterCommentInformation() { Name = nodeName }
-                                        );
-                                }
-                            }
+                            SetCommentReferences(paramNodes, commentParameters, tempParameters);
 
                             tempParameters.First(x => x.Name == node.GetAttributeName()).CommentParameters = commentParameters;
                         }
                     }
+                    
+                    methodCommentInformation.Parameters = tempParameters;
+
                     // Finds the first class that its name the method's full name contains and...
                     classes.First(x => memberNode.GetAttributeName().Contains(x.Name))
                                         // Adds the method comment info to its methods' list
@@ -251,6 +223,7 @@ namespace RoslynCodeAnalyzer
                     Console.WriteLine(methodCommentInformation.Comments);
                 }
             }
+            Console.WriteLine(classes.First(x => x.Name == "MethodCommentInformation").Name);
         }
 
         /// <summary>
@@ -288,10 +261,16 @@ namespace RoslynCodeAnalyzer
             else if (node.Name == Constants.SeeTag)
             {
                 // Gets the cref attribute's value
-                var crefName = node.GetAttributeName(Constants.CrefTag);
+                var crefName = node.GetAttributeName(Constants.CrefTag).GetLastNameAfterDot();
+                // Gets the cref's class name
+                var className = node.GetAttributeName(Constants.CrefTag)
+                                // Gets from the start up to the last "."
+                                .Substring(0, node.GetAttributeName(Constants.CrefTag).LastIndexOf(Constants.Dot))
+                                // Returns the last char set after the last "."
+                                .GetLastNameAfterDot();
 
                 // Sets as method's name the character set after the last '.'
-                return crefName.GetLastNameAfterDot();
+                return $"{className}.{crefName}";
             }
             // Returns an empty string
             return string.Empty;

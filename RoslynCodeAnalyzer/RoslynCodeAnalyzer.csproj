@@ -81,6 +81,7 @@
     <Compile Include="BaseCommentInformation.cs" />
     <Compile Include="ClassCommentInformation.cs" />
     <Compile Include="Constants.cs" />
+    <Compile Include="CrefCommentInformation.cs" />
     <Compile Include="MethodCommentInformation.cs" />
     <Compile Include="HelperMethods.cs" />
     <Compile Include="ParameterCommentInformation.cs" />

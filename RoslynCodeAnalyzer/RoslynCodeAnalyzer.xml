@@ -366,14 +366,6 @@
             Analyzes an XML file
             </summary>
         </member>
-        <member name="M:RoslynCodeAnalyzer.XmlAnalyzer.GetLastNameAfterString(System.String,System.String)">
-            <summary>
-            Gets the last character set that are after the specified <paramref name="lastString"/>
-            </summary>
-            <param name="lastString">String to take after</param>
-            <param name="value">The value</param>
-            <returns></returns>
-        </member>
         <member name="M:RoslynCodeAnalyzer.XmlAnalyzer.FormatMethodName(System.String)">
             <summary>
             Formats a method's full name
@@ -383,18 +375,21 @@
         </member>
         <member name="M:RoslynCodeAnalyzer.XmlAnalyzer.GetNodeElementName(System.Xml.XmlNode)">
             <summary>
-            
+            Gets the name from a node of type element
             </summary>
-            <param name="node"></param>
+            <param name="node">The node</param>
             <returns></returns>
         </member>
         <member name="M:RoslynCodeAnalyzer.XmlAnalyzer.SetCommentReferences(System.Xml.XmlNodeList,System.Collections.Generic.List{RoslynCodeAnalyzer.ParameterCommentInformation},System.Collections.Generic.List{RoslynCodeAnalyzer.ParameterCommentInformation})">
             <summary>
-            
+            Gets from the given <paramref name="nodeList"/> the empty elements' names of the each node's summary
+            Searches through the <paramref name="multipleParameterCommentInformation"/> if an object with the same name already exists...
+            If yes adds it to the <paramref name="commentParameters"/>...
+            Else creates a new object and adds that to the list
             </summary>
-            <param name="nodeList"></param>
-            <param name="multipleParameterCommentInformation"></param>
-            <param name="commentParameters"></param>
+            <param name="nodeList">The list of nodes</param>
+            <param name="multipleParameterCommentInformation">The parameters of a method</param>
+            <param name="commentParameters">The references in the comments</param>
         </member>
     </members>
 </doc>

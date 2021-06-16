@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace RoslynCodeAnalyzer
 {
@@ -12,12 +13,12 @@ namespace RoslynCodeAnalyzer
         /// <summary>
         /// The parameters that are used in the <see cref="BaseCommentInformation.Comments"/> <see cref="BaseCommentInformation.Name"/>
         /// </summary>
-        public IEnumerable<ParameterCommentInformation> SummaryCommentParameters { get; set; }
+        public IEnumerable<ParameterCommentInformation> SummaryCommentParameters { get; set; } = Enumerable.Empty<ParameterCommentInformation>();
 
         /// <summary>
         /// The parameters' data
         /// </summary>
-        public IEnumerable<ParameterCommentInformation> Parameters { get; set;}
+        public IEnumerable<ParameterCommentInformation> Parameters { get; set;} = Enumerable.Empty<ParameterCommentInformation>();
 
         #endregion
 
