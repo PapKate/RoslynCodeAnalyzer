@@ -29,6 +29,16 @@
             
             </summary>
         </member>
+        <member name="F:RoslynCodeAnalyzer.ClassCommentInformation.mMethods">
+            <summary>
+            The methods
+            </summary>
+        </member>
+        <member name="F:RoslynCodeAnalyzer.ClassCommentInformation.mProperties">
+            <summary>
+            The properties
+            </summary>
+        </member>
         <member name="P:RoslynCodeAnalyzer.ClassCommentInformation.Methods">
             <summary>
             The methods
@@ -137,6 +147,21 @@
         <member name="F:RoslynCodeAnalyzer.Constants.LeftParenthesis">
             <summary>
             The "("
+            </summary>
+        </member>
+        <member name="T:RoslynCodeAnalyzer.CrefCommentInformation">
+            <summary>
+            Provides information about the documentation comments of a cref
+            </summary>
+        </member>
+        <member name="P:RoslynCodeAnalyzer.CrefCommentInformation.Class">
+            <summary>
+            The class
+            </summary>
+        </member>
+        <member name="M:RoslynCodeAnalyzer.CrefCommentInformation.#ctor">
+            <summary>
+            Default constructor
             </summary>
         </member>
         <member name="T:RoslynCodeAnalyzer.MethodCommentInformation">
@@ -260,7 +285,7 @@
         </member>
         <member name="T:RoslynCodeAnalyzer.ParameterCommentInformation">
             <summary>
-            Provides information about the document comments of a parameter of a method
+            Provides information about the documentation comments of a parameter of a method
             </summary>
         </member>
         <member name="P:RoslynCodeAnalyzer.ParameterCommentInformation.XmlElement">

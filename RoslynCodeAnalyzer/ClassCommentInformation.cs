@@ -7,17 +7,39 @@ namespace RoslynCodeAnalyzer
     /// </summary>
     public class ClassCommentInformation : BaseCommentInformation
     {
+        #region Internal Members
+
+        /// <summary>
+        /// The methods
+        /// </summary>
+        internal List<MethodCommentInformation> mMethods = new List<MethodCommentInformation>();
+
+        /// <summary>
+        /// The properties
+        /// </summary>
+        internal List<PropertyCommentInformation> mProperties = new List<PropertyCommentInformation>();
+
+        #endregion
+
         #region Public Properties
 
         /// <summary>
         /// The methods
         /// </summary>
-        public List<MethodCommentInformation> Methods { get; set; } = new List<MethodCommentInformation>();
+        public IEnumerable<MethodCommentInformation> Methods 
+        {
+            get { return mMethods; }
+            set { mMethods = (List<MethodCommentInformation>)value; } 
+        }
 
         /// <summary>
         /// The properties
         /// </summary>
-        public List<PropertyCommentInformation> Properties { get; set; } = new List<PropertyCommentInformation>();
+        public IEnumerable<PropertyCommentInformation> Properties 
+        {
+            get { return mProperties; }
+            set { mProperties = (List<PropertyCommentInformation>)value; } 
+        }
 
         #endregion
 
