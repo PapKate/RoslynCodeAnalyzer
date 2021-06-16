@@ -125,7 +125,7 @@ namespace RoslynCodeAnalyzer
                     // Finds the first class that its name the property's full name contains and...
                     classes.First(x => memberNode.GetAttributeName().Contains(x.Name))
                                          // Adds the property comment info to its properties' list
-                                        .mProperties.Add(propertyCommentInformation);
+                                        .Add(propertyCommentInformation);
                 }
                 // Else if the name attribute of the member starts with "M:"...
                 // Meaning if the member is a method OR constructor...
@@ -218,7 +218,7 @@ namespace RoslynCodeAnalyzer
                     // Finds the first class that its name the method's full name contains and...
                     classes.First(x => memberNode.GetAttributeName().Contains(x.Name))
                                         // Adds the method comment info to its methods' list
-                                        .mMethods.Add(methodCommentInformation);
+                                        .Add(methodCommentInformation);
 
                     Console.WriteLine(methodCommentInformation.Comments);
                 }

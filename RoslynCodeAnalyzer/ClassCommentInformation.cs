@@ -12,12 +12,12 @@ namespace RoslynCodeAnalyzer
         /// <summary>
         /// The methods
         /// </summary>
-        internal List<MethodCommentInformation> mMethods = new List<MethodCommentInformation>();
+        private readonly List<MethodCommentInformation> mMethodCommentInformations = new List<MethodCommentInformation>();
 
         /// <summary>
         /// The properties
         /// </summary>
-        internal List<PropertyCommentInformation> mProperties = new List<PropertyCommentInformation>();
+        private readonly List<PropertyCommentInformation> mPropertyCommentInformations = new List<PropertyCommentInformation>();
 
         #endregion
 
@@ -28,8 +28,7 @@ namespace RoslynCodeAnalyzer
         /// </summary>
         public IEnumerable<MethodCommentInformation> Methods 
         {
-            get { return mMethods; }
-            set { mMethods = (List<MethodCommentInformation>)value; } 
+            get { return mMethodCommentInformations; }
         }
 
         /// <summary>
@@ -37,8 +36,7 @@ namespace RoslynCodeAnalyzer
         /// </summary>
         public IEnumerable<PropertyCommentInformation> Properties 
         {
-            get { return mProperties; }
-            set { mProperties = (List<PropertyCommentInformation>)value; } 
+            get { return mPropertyCommentInformations; }
         }
 
         #endregion
@@ -51,6 +49,30 @@ namespace RoslynCodeAnalyzer
         public ClassCommentInformation()
         {
 
+        }
+
+        #endregion
+
+        #region Internal Methods
+
+        /// <summary>
+        /// Adds a <paramref name="value"/> to the <see cref="mMethodCommentInformations"/>
+        /// </summary>
+        /// <param name="value">The value</param>
+        internal void Add(MethodCommentInformation value)
+        {
+            // Adds to the member the value
+            mMethodCommentInformations.Add(value);
+        }
+
+        /// <summary>
+        /// Adds a <paramref name="value"/> to the <see cref="mPropertyCommentInformations"/>
+        /// </summary>
+        /// <param name="value">The value</param>
+        internal void Add(PropertyCommentInformation value)
+        {
+            // Adds to the member the value
+            mPropertyCommentInformations.Add(value);
         }
 
         #endregion
