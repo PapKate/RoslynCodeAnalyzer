@@ -44,6 +44,11 @@
             The properties
             </summary>
         </member>
+        <member name="P:RoslynCodeAnalyzer.ClassCommentInformation.ClassType">
+            <summary>
+            The type of the class
+            </summary>
+        </member>
         <member name="P:RoslynCodeAnalyzer.ClassCommentInformation.BaseClasses">
             <summary>
             The classes from the inheritance 
@@ -59,7 +64,7 @@
             The properties
             </summary>
         </member>
-        <member name="M:RoslynCodeAnalyzer.ClassCommentInformation.#ctor">
+        <member name="M:RoslynCodeAnalyzer.ClassCommentInformation.#ctor(System.Type)">
             <summary>
             Default constructor
             </summary>
@@ -196,6 +201,19 @@
             <summary>
             Default constructor
             </summary>
+        </member>
+        <member name="T:RoslynCodeAnalyzer.IDocumentationAnalyzer">
+            <summary>
+            Provides abstractions for a documentation analyzer
+            </summary>
+        </member>
+        <member name="M:RoslynCodeAnalyzer.IDocumentationAnalyzer.Analyze(System.Collections.Generic.IEnumerable{System.Type},System.String)">
+            <summary>
+            Analyzers the files of the directory with the specified <paramref name="directoryPath"/> and
+            extracts all the documentation information
+            </summary>
+            <param name="types"></param>
+            <param name="directoryPath">The directory path</param>
         </member>
         <member name="T:RoslynCodeAnalyzer.MethodCommentInformation">
             <summary>
@@ -357,27 +375,27 @@
             Default constructor
             </summary>
         </member>
-        <member name="T:RoslynCodeAnalyzer.RoslynAnalyzer">
+        <member name="T:RoslynCodeAnalyzer.RoslynDocumentationAnalyzer">
             <summary>
             Responsible for analyzing .cs files with Roslyn 
             </summary>
         </member>
-        <member name="P:RoslynCodeAnalyzer.RoslynAnalyzer.None">
+        <member name="P:RoslynCodeAnalyzer.RoslynDocumentationAnalyzer.None">
             <summary>
             The none syntax token
             </summary>
         </member>
-        <member name="M:RoslynCodeAnalyzer.RoslynAnalyzer.#ctor">
+        <member name="M:RoslynCodeAnalyzer.RoslynDocumentationAnalyzer.#ctor">
             <summary>
             Default constructor
             </summary>
         </member>
-        <member name="M:RoslynCodeAnalyzer.RoslynAnalyzer.AnalyzeFile">
+        <member name="M:RoslynCodeAnalyzer.RoslynDocumentationAnalyzer.AnalyzeFile">
             <summary>
             Analyzes a .cs file with Roslyn
             </summary>
         </member>
-        <member name="M:RoslynCodeAnalyzer.RoslynAnalyzer.GetXml(Microsoft.CodeAnalysis.CSharp.Syntax.MemberDeclarationSyntax,Microsoft.CodeAnalysis.SyntaxToken,System.String)">
+        <member name="M:RoslynCodeAnalyzer.RoslynDocumentationAnalyzer.GetXml(Microsoft.CodeAnalysis.CSharp.Syntax.MemberDeclarationSyntax,Microsoft.CodeAnalysis.SyntaxToken,System.String)">
             <summary>
             Gets the xml node for the comments
             </summary>
@@ -386,7 +404,7 @@
             <param name="declarationSyntaxType">Whether a method or a property</param>
             <returns></returns>
         </member>
-        <member name="M:RoslynCodeAnalyzer.RoslynAnalyzer.GetSummary(Microsoft.CodeAnalysis.SyntaxNode,Microsoft.CodeAnalysis.SyntaxToken,System.String)">
+        <member name="M:RoslynCodeAnalyzer.RoslynDocumentationAnalyzer.GetSummary(Microsoft.CodeAnalysis.SyntaxNode,Microsoft.CodeAnalysis.SyntaxToken,System.String)">
             <summary>
             Gets the summary comments
             </summary>
@@ -394,56 +412,56 @@
             <param name="identifier">The member's name </param>
             <param name="declarationSyntaxType">Whether a method or a property</param>
         </member>
-        <member name="M:RoslynCodeAnalyzer.RoslynAnalyzer.GetSummaryComments(Microsoft.CodeAnalysis.CSharp.Syntax.XmlElementSyntax)">
+        <member name="M:RoslynCodeAnalyzer.RoslynDocumentationAnalyzer.GetSummaryComments(Microsoft.CodeAnalysis.CSharp.Syntax.XmlElementSyntax)">
             <summary>
             Gets the summary comments and formats them correctly
             </summary>
             <param name="summary">The summary</param>
             <returns></returns>
         </member>
-        <member name="M:RoslynCodeAnalyzer.RoslynAnalyzer.FilterThroughEmptyElements(Microsoft.CodeAnalysis.CSharp.Syntax.XmlElementSyntax,System.Collections.Generic.List{RoslynCodeAnalyzer.ParameterCommentInformation})">
+        <member name="M:RoslynCodeAnalyzer.RoslynDocumentationAnalyzer.FilterThroughEmptyElements(Microsoft.CodeAnalysis.CSharp.Syntax.XmlElementSyntax,System.Collections.Generic.List{RoslynCodeAnalyzer.ParameterCommentInformation})">
             <summary>
             Filters through summary and gets the empty elements
             </summary>
             <param name="summary">The summary</param>
             <param name="parameterComments"></param>
         </member>
-        <member name="M:RoslynCodeAnalyzer.RoslynAnalyzer.FilterThroughEmptyElements(Microsoft.CodeAnalysis.CSharp.Syntax.XmlElementSyntax)">
+        <member name="M:RoslynCodeAnalyzer.RoslynDocumentationAnalyzer.FilterThroughEmptyElements(Microsoft.CodeAnalysis.CSharp.Syntax.XmlElementSyntax)">
             <summary>
             Filters through summary and gets the empty elements
             </summary>
             <param name="summary">The summary</param>
         </member>
-        <member name="M:RoslynCodeAnalyzer.RoslynAnalyzer.GetAllFilesFromDirectory">
+        <member name="M:RoslynCodeAnalyzer.RoslynDocumentationAnalyzer.GetAllFilesFromDirectory">
             <summary>
             
             </summary>
         </member>
-        <member name="T:RoslynCodeAnalyzer.XmlAnalyzer">
+        <member name="T:RoslynCodeAnalyzer.XmlDocumentationAnalyzer">
             <summary>
             Responsible for analyzing a .xml file
             </summary>
         </member>
-        <member name="M:RoslynCodeAnalyzer.XmlAnalyzer.AnalyzeFile">
+        <member name="M:RoslynCodeAnalyzer.XmlDocumentationAnalyzer.AnalyzeFile">
             <summary>
             Analyzes an XML file
             </summary>
         </member>
-        <member name="M:RoslynCodeAnalyzer.XmlAnalyzer.FormatMethodName(System.String)">
+        <member name="M:RoslynCodeAnalyzer.XmlDocumentationAnalyzer.FormatMethodName(System.String)">
             <summary>
             Formats a method's full name
             </summary>
             <param name="value">The method's full name</param>
             <returns></returns>
         </member>
-        <member name="M:RoslynCodeAnalyzer.XmlAnalyzer.GetNodeElementName(System.Xml.XmlNode)">
+        <member name="M:RoslynCodeAnalyzer.XmlDocumentationAnalyzer.GetNodeElementName(System.Xml.XmlNode)">
             <summary>
             Gets the name from a node of type element
             </summary>
             <param name="node">The node</param>
             <returns></returns>
         </member>
-        <member name="M:RoslynCodeAnalyzer.XmlAnalyzer.SetCommentReferences(System.Xml.XmlNodeList,System.Collections.Generic.List{RoslynCodeAnalyzer.ParameterCommentInformation},System.Collections.Generic.List{RoslynCodeAnalyzer.ParameterCommentInformation})">
+        <member name="M:RoslynCodeAnalyzer.XmlDocumentationAnalyzer.SetCommentReferences(System.Xml.XmlNodeList,System.Collections.Generic.List{RoslynCodeAnalyzer.ParameterCommentInformation},System.Collections.Generic.List{RoslynCodeAnalyzer.ParameterCommentInformation})">
             <summary>
             Gets from the given <paramref name="nodeList"/> the empty elements' names of the each node's summary
             Searches through the <paramref name="multipleParameterCommentInformation"/> if an object with the same name already exists...

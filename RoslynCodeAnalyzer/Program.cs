@@ -23,11 +23,11 @@ namespace RoslynCodeAnalyzer
         {
             var xmlAnalyzer = new XmlDocumentationAnalyzer();
             
-            //xmlAnalyzer.AnalyzeFile();
+            xmlAnalyzer.AnalyzeFile();
 
             var roslynAnalyzer = new RoslynDocumentationAnalyzer();
 
-            roslynAnalyzer.AnalyzeFile();
+            //roslynAnalyzer.AnalyzeFile();
 
             Console.ReadLine();
         }
