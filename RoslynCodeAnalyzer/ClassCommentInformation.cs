@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace RoslynCodeAnalyzer
 {
@@ -7,7 +8,12 @@ namespace RoslynCodeAnalyzer
     /// </summary>
     public class ClassCommentInformation : BaseCommentInformation
     {
-        #region Internal Members
+        #region Private Members
+
+        /// <summary>
+        /// The classes
+        /// </summary>
+        private readonly List<ClassCommentInformation> mClassCommentInformations = new List<ClassCommentInformation>();
 
         /// <summary>
         /// The methods
@@ -22,6 +28,19 @@ namespace RoslynCodeAnalyzer
         #endregion
 
         #region Public Properties
+
+        /// <summary>
+        /// The type of the class
+        /// </summary>
+        public Type ClassType { get; }
+
+        /// <summary>
+        /// The classes from the inheritance 
+        /// </summary>
+        public IEnumerable<ClassCommentInformation> BaseClasses 
+        {
+            get { return mClassCommentInformations; }
+        }
 
         /// <summary>
         /// The methods
@@ -46,14 +65,24 @@ namespace RoslynCodeAnalyzer
         /// <summary>
         /// Default constructor
         /// </summary>
-        public ClassCommentInformation()
+        public ClassCommentInformation(Type classType)
         {
-
+            ClassType = classType ?? throw new ArgumentNullException(nameof(classType));
         }
 
         #endregion
 
         #region Internal Methods
+
+        /// <summary>
+        /// Adds a <paramref name="value"/> to the <see cref="mClassCommentInformations"/>
+        /// </summary>
+        /// <param name="value">The value</param>
+        internal void Add(ClassCommentInformation value)
+        {
+            // Adds to the member the value
+            mClassCommentInformations.Add(value);
+        }
 
         /// <summary>
         /// Adds a <paramref name="value"/> to the <see cref="mMethodCommentInformations"/>

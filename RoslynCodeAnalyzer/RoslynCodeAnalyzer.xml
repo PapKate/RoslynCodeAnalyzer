@@ -29,14 +29,24 @@
             
             </summary>
         </member>
-        <member name="F:RoslynCodeAnalyzer.ClassCommentInformation.mMethods">
+        <member name="F:RoslynCodeAnalyzer.ClassCommentInformation.mClassCommentInformations">
+            <summary>
+            The classes
+            </summary>
+        </member>
+        <member name="F:RoslynCodeAnalyzer.ClassCommentInformation.mMethodCommentInformations">
             <summary>
             The methods
             </summary>
         </member>
-        <member name="F:RoslynCodeAnalyzer.ClassCommentInformation.mProperties">
+        <member name="F:RoslynCodeAnalyzer.ClassCommentInformation.mPropertyCommentInformations">
             <summary>
             The properties
+            </summary>
+        </member>
+        <member name="P:RoslynCodeAnalyzer.ClassCommentInformation.BaseClasses">
+            <summary>
+            The classes from the inheritance 
             </summary>
         </member>
         <member name="P:RoslynCodeAnalyzer.ClassCommentInformation.Methods">
@@ -53,6 +63,24 @@
             <summary>
             Default constructor
             </summary>
+        </member>
+        <member name="M:RoslynCodeAnalyzer.ClassCommentInformation.Add(RoslynCodeAnalyzer.ClassCommentInformation)">
+            <summary>
+            Adds a <paramref name="value"/> to the <see cref="F:RoslynCodeAnalyzer.ClassCommentInformation.mClassCommentInformations"/>
+            </summary>
+            <param name="value">The value</param>
+        </member>
+        <member name="M:RoslynCodeAnalyzer.ClassCommentInformation.Add(RoslynCodeAnalyzer.MethodCommentInformation)">
+            <summary>
+            Adds a <paramref name="value"/> to the <see cref="F:RoslynCodeAnalyzer.ClassCommentInformation.mMethodCommentInformations"/>
+            </summary>
+            <param name="value">The value</param>
+        </member>
+        <member name="M:RoslynCodeAnalyzer.ClassCommentInformation.Add(RoslynCodeAnalyzer.PropertyCommentInformation)">
+            <summary>
+            Adds a <paramref name="value"/> to the <see cref="F:RoslynCodeAnalyzer.ClassCommentInformation.mPropertyCommentInformations"/>
+            </summary>
+            <param name="value">The value</param>
         </member>
         <member name="T:RoslynCodeAnalyzer.Constants">
             <summary>
@@ -77,6 +105,11 @@
         <member name="F:RoslynCodeAnalyzer.Constants.SummaryXmlEndMember">
             <summary>
             The end summary tag
+            </summary>
+        </member>
+        <member name="F:RoslynCodeAnalyzer.Constants.ClassTag">
+            <summary>
+            The "class"
             </summary>
         </member>
         <member name="F:RoslynCodeAnalyzer.Constants.MethodTag">
@@ -380,6 +413,11 @@
             Filters through summary and gets the empty elements
             </summary>
             <param name="summary">The summary</param>
+        </member>
+        <member name="M:RoslynCodeAnalyzer.RoslynAnalyzer.GetAllFilesFromDirectory">
+            <summary>
+            
+            </summary>
         </member>
         <member name="T:RoslynCodeAnalyzer.XmlAnalyzer">
             <summary>

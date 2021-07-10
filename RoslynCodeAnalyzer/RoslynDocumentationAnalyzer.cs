@@ -7,13 +7,14 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Xml;
 
 namespace RoslynCodeAnalyzer
 {
     /// <summary>
     /// Responsible for analyzing .cs files with Roslyn 
     /// </summary>
-    public class RoslynAnalyzer
+    public class RoslynDocumentationAnalyzer : IDocumentationAnalyzer
     {
         #region Public Properties
 
@@ -29,7 +30,7 @@ namespace RoslynCodeAnalyzer
         /// <summary>
         /// Default constructor
         /// </summary>
-        public RoslynAnalyzer()
+        public RoslynDocumentationAnalyzer()
         {
 
         }
@@ -38,11 +39,13 @@ namespace RoslynCodeAnalyzer
 
         #region Public Methods
 
+
         /// <summary>
         /// Analyzes a .cs file with Roslyn
         /// </summary>
         public void AnalyzeFile()
         {
+            GetAllFilesFromDirectory();
             // C:\Users\PapKate\Documents\PersonalProjects\C#\RoslynCodeAnalyzer\RoslynCodeAnalyzer\MethodCommentInformation.cs
             var implementationFilePath = Constants.CsFilePath;
 
@@ -57,20 +60,59 @@ namespace RoslynCodeAnalyzer
 
             // Gets the tree's members
             var members = tree.GetRoot().DescendantNodes().OfType<MemberDeclarationSyntax>();
+            
+            var classes = new List<ClassCommentInformation>();
 
             var multipleMethodCommentsData = new List<MethodCommentInformation>();
 
             var multiplePropertyCommentsData = new List<PropertyCommentInformation>();
 
+            foreach(var member in members)
+            {
+                if (member is ClassDeclarationSyntax classSyntax)
+                {
+                    var xml = GetXml(classSyntax, classSyntax.Identifier, Constants.ClassTag);
+                    var summaryComments = string.Empty;
+                    // If the class has no comments...
+                    if (xml == null)
+                        // Prints in the out put console a message
+                        HelperMethods.MissingSummaryCommentsOutputError(classSyntax.Identifier.ToString(), Constants.ClassTag);
+                    else
+                    {
+                        var summarySyntax = GetSummary(xml, classSyntax.Identifier, Constants.ClassTag);
+
+                        summaryComments = HelperMethods.CleanedCommentsString(summarySyntax.Content.ToString());
+                    }
+
+                    // Creates a new class comment information object
+                    var classCommentInformation = new ClassCommentInformation()
+                    {
+                        Name = classSyntax.Identifier.ToString(),
+                        Comments = summaryComments
+                    };
+
+                    // Adds to the classes list the class
+                    classes.Add(classCommentInformation);
+                }
+            }
+
             foreach (var member in members)
             {
-                if (member is PropertyDeclarationSyntax property)
+                if(member is ClassDeclarationSyntax classSyntax)
+                {
+                    var xml = GetXml(classSyntax, classSyntax.Identifier, Constants.ClassTag);
+                    var baseClasses = xml.ChildNodes()
+                                    .OfType<XmlElementSyntax>()
+                                    .FirstOrDefault(i => i.GetType() == typeof(BaseListSyntax));
+                    //classes.First(x => x.Name == classSyntax.Identifier.ToString()).Add();
+                }
+                else if (member is PropertyDeclarationSyntax propertySyntax)
                 {
                     // Gets the xml node
-                    var xml = GetXml(property, property.Identifier, Constants.MethodTag);
+                    var xml = GetXml(propertySyntax, propertySyntax.Identifier, Constants.PropertyTag);
 
                     // Gets the summary element
-                    var clean = GetSummary(xml, property.Identifier, Constants.PropertyTag);
+                    var clean = GetSummary(xml, propertySyntax.Identifier, Constants.PropertyTag);
 
                     // Gets the first child node of type XmlElementSyntax and filter's through it and gets all the cref elements
                     var list = FilterThroughEmptyElements(xml.ChildNodes().OfType<XmlElementSyntax>().First());
@@ -81,30 +123,30 @@ namespace RoslynCodeAnalyzer
                     // CommentCref the list with the cref elements
                     multiplePropertyCommentsData.Add(new PropertyCommentInformation()
                     { 
-                        Name = property.Identifier.ToString(),
+                        Name = propertySyntax.Identifier.ToString(),
                         Comments = clean.ToString(),
                         CommentParameters = list
                     });
                 }
 
                 // Else if the member is of type MethodDeclarationSyntax...
-                else if (member is MethodDeclarationSyntax method)
+                else if (member is MethodDeclarationSyntax methodSyntax)
                 {
                     // Gets the xml node
-                    var xml = GetXml(method, method.Identifier, Constants.MethodTag);
+                    var xml = GetXml(methodSyntax, methodSyntax.Identifier, Constants.MethodTag);
 
                     if (xml == null)
                         continue;
 
                     // Gets the summary element
-                    var summary = GetSummary(xml, method.Identifier, Constants.MethodTag);
+                    var summary = GetSummary(xml, methodSyntax.Identifier, Constants.MethodTag);
 
                     if (summary == null)
                         continue;
 
                     var methodCommentsData = new MethodCommentInformation()
                     {
-                        Name = method.Identifier.ToString(),
+                        Name = methodSyntax.Identifier.ToString(),
                         Comments = GetSummaryComments(summary)
                     };
 
@@ -116,10 +158,10 @@ namespace RoslynCodeAnalyzer
                     // If no comments for parameters is found...
                     if (allParamNameAttributes.Count == 0
                         // And the actual method has parameters...
-                        && method.ParameterList.Parameters.Count != 0)
+                        && methodSyntax.ParameterList.Parameters.Count != 0)
                     {
                         // Prints message to the output console
-                        HelperMethods.MissingParamCommentsOutputError(method.Identifier.ToString());
+                        HelperMethods.MissingParamCommentsOutputError(methodSyntax.Identifier.ToString());
                         // Returns
                         continue;
                     }
@@ -140,7 +182,7 @@ namespace RoslynCodeAnalyzer
 
                         // Gets the parameter's type as string
                         // TODO: fix -> get type
-                        var parameterType = method.ParameterList.Parameters.First(x => x.Identifier.ToString() == parameterName)
+                        var parameterType = methodSyntax.ParameterList.Parameters.First(x => x.Identifier.ToString() == parameterName)
                                                                                         .Type.GetText();
 
                         // Creates and adds to the list the parameter data
@@ -182,18 +224,18 @@ namespace RoslynCodeAnalyzer
             // Gets the comments above the method
             var xmlCommentTrivia = member.GetLeadingTrivia().FirstOrDefault(x => x.Kind() == SyntaxKind.SingleLineDocumentationCommentTrivia);
 
-            // Gets the comments' xml structure
-            var xml = xmlCommentTrivia.GetStructure();
 
             // If there are no comments for the method...
             if (xmlCommentTrivia == null || xmlCommentTrivia.Token == None)
             {
                 // Prints message to the output console
                 Debug.WriteLine($"The {declarationSyntaxType} with name: {identifier} does NOT have any comments!");
-
-                // Returns null
+                
                 return null;
             }
+
+            // Gets the comments' xml structure
+            var xml = xmlCommentTrivia.GetStructure();
 
             // Returns the xml node
             return xml;
@@ -216,9 +258,7 @@ namespace RoslynCodeAnalyzer
             if (summary == null)
             {
                 // Prints message to the output console
-                HelperMethods.MissingSummaryCommentsOutputError(identifier.ToString(), declarationSyntaxType);
-                // Returns
-                return null;
+                HelperMethods.MissingSummaryCommentsOutputError(xml.ToString(), declarationSyntaxType);
             }
 
             // Returns the summary syntax element
@@ -234,10 +274,7 @@ namespace RoslynCodeAnalyzer
         {
             // Gets the text inside the <summary> </sumarry> area and...
             // Filters the string and removes the specified strings
-            var clean = HelperMethods.FilterString(summary.Content.ToString(),
-                                                   Constants.CarriageReturn,
-                                                   Constants.NewLine,
-                                                   Constants.TripleSlashes);
+            var clean = HelperMethods.CleanedCommentsString(summary.Content.ToString());
 
             // Replaces the multiple spaces with a single one
             clean = HelperMethods.CleanStringFromExtraSpaces(clean);
@@ -320,6 +357,43 @@ namespace RoslynCodeAnalyzer
             }
 
             return summaryCommentParameters;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public void GetAllFilesFromDirectory()
+        {
+            var directoryInfo = new DirectoryInfo(@"C:\Users\PapKate\Documents\PersonalProjects\C#\RoslynCodeAnalyzer\RoslynCodeAnalyzer");
+
+            var assemblyFile = directoryInfo.GetFiles("*.cs", SearchOption.AllDirectories).First(x => x.Name == "AssemblyInfo.cs");
+
+            var netFile = directoryInfo.GetFiles("*.cs", SearchOption.AllDirectories).First(x => x.Name.Contains("NETFramework"));
+
+            var files = directoryInfo.GetFiles("*.cs", SearchOption.AllDirectories);
+
+            foreach (var file in directoryInfo.GetFiles("*.cs", SearchOption.AllDirectories))
+            {
+                var implementationFilePath = file.FullName;
+
+                // Reads all the text in the file path
+                var implementation = File.ReadAllText(implementationFilePath);
+
+                // Gets the syntax tree
+                var tree = CSharpSyntaxTree.ParseText(implementation);
+
+                // Gets the tree's root
+                var root = tree.GetCompilationUnitRoot();
+
+                // Gets the tree's members
+                var members = tree.GetRoot().DescendantNodes().OfType<MemberDeclarationSyntax>();
+                Console.WriteLine(file.Name);
+            }
+        }
+
+        public void Analyze(IEnumerable<Type> types, string directoryPath)
+        {
+            throw new NotImplementedException();
         }
 
         #endregion

@@ -36,6 +36,11 @@
         #region Tags
 
         /// <summary>
+        /// The "class"
+        /// </summary>
+        public const string ClassTag = "class";
+
+        /// <summary>
         /// The "method"
         /// </summary>
         public const string MethodTag = "method";

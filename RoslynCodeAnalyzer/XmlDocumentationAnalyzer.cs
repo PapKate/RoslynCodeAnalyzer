@@ -9,8 +9,13 @@ namespace RoslynCodeAnalyzer
     /// <summary>
     /// Responsible for analyzing a .xml file
     /// </summary>
-    public class XmlAnalyzer
+    public class XmlDocumentationAnalyzer : IDocumentationAnalyzer
     {
+        
+        public void Analyze(IEnumerable<Type> types, string directoryPath)
+        {
+            throw new NotImplementedException();
+        }
         #region Public Methods
 
         /// <summary>

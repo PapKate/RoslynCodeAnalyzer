@@ -82,14 +82,15 @@
     <Compile Include="ClassCommentInformation.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="CrefCommentInformation.cs" />
+    <Compile Include="IDocumentationAnalyzer.cs" />
     <Compile Include="MethodCommentInformation.cs" />
     <Compile Include="HelperMethods.cs" />
     <Compile Include="ParameterCommentInformation.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PropertyCommentInformation.cs" />
-    <Compile Include="RoslynAnalyzer.cs" />
-    <Compile Include="XmlAnalyzer.cs" />
+    <Compile Include="RoslynDocumentationAnalyzer.cs" />
+    <Compile Include="XmlDocumentationAnalyzer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
