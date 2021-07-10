@@ -57,12 +57,16 @@ namespace RoslynCodeAnalyzer
                     // Filters and cleans the text
                     classSummary = HelperMethods.CleanedCommentsString(classSummary);
 
+                    var classType = Type.GetType(memberNode.GetAttributeName().Replace("T:", string.Empty));
+
                     // Creates a new class comment information object
-                    var classCommentInformation = new ClassCommentInformation()
+                    var classCommentInformation = new ClassCommentInformation(classType)
                     {
                         Name = className,
                         Comments = classSummary
                     };
+
+                    
 
                     // Adds to the classes list the class
                     classes.Add(classCommentInformation);

@@ -12,6 +12,7 @@ namespace RoslynCodeAnalyzer
         /// Analyzers the files of the directory with the specified <paramref name="directoryPath"/> and
         /// extracts all the documentation information
         /// </summary>
+        /// <param name="types"></param>
         /// <param name="directoryPath">The directory path</param>
         void Analyze(IEnumerable<Type> types, string directoryPath);
     }

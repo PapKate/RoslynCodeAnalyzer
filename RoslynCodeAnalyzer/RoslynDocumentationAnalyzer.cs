@@ -67,27 +67,46 @@ namespace RoslynCodeAnalyzer
 
             var multiplePropertyCommentsData = new List<PropertyCommentInformation>();
 
+            var namespaceName = string.Empty;
+
+            // For each member in members...
             foreach(var member in members)
             {
+                // If the member is a class...
                 if (member is ClassDeclarationSyntax classSyntax)
                 {
+                    // Gets the xml node for the comments
                     var xml = GetXml(classSyntax, classSyntax.Identifier, Constants.ClassTag);
+
                     var summaryComments = string.Empty;
+                    
                     // If the class has no comments...
                     if (xml == null)
                         // Prints in the out put console a message
                         HelperMethods.MissingSummaryCommentsOutputError(classSyntax.Identifier.ToString(), Constants.ClassTag);
+                    // Else...
                     else
                     {
+                        // Gets the summary comments
                         var summarySyntax = GetSummary(xml, classSyntax.Identifier, Constants.ClassTag);
 
+                        // Formats correclty the comments
                         summaryComments = HelperMethods.CleanedCommentsString(summarySyntax.Content.ToString());
                     }
 
+                    // Gets the class' name
+                    var className = classSyntax.Identifier.ToString();
+
+                    // Searches in the solution and gets the first type with name the class' name
+                    var classType = AppDomain.CurrentDomain
+                                .GetAssemblies()
+                                .SelectMany(x => x.GetTypes())
+                                .FirstOrDefault(t => t.Name == className);
+
                     // Creates a new class comment information object
-                    var classCommentInformation = new ClassCommentInformation()
+                    var classCommentInformation = new ClassCommentInformation(classType)
                     {
-                        Name = classSyntax.Identifier.ToString(),
+                        Name = className,
                         Comments = summaryComments
                     };
 
