@@ -55,7 +55,7 @@ namespace RoslynCodeAnalyzer
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
-        public static string CleanedCommentsString(string value)
+        public static string CleanCommentString(string value)
         {
             // Filters the string and removes the specified strings
             value = FilterString(value, Constants.CarriageReturn, Constants.NewLine, Constants.TripleSlashes);
@@ -90,10 +90,29 @@ namespace RoslynCodeAnalyzer
         public static string GetLastNameAfterDot(this string value)
         {
             // Sets as value the character set after the last "."
-            value = value.Substring(value.LastIndexOf(Constants.Dot) + 1);
+            return value.Substring(value.LastIndexOf(Constants.Dot) + 1);
+        }
 
-            // Returns the new value
-            return value;
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static string GetFullClassName(this string value)
+        {
+            // Sets as value the character set after the last "."
+            var newValue = value.Substring(value.IndexOf(':') + 1);
+            
+            // If it is a class' name
+            if (value.StartsWith("T:"))
+                // Returns the value
+                return newValue;
+            else
+            {
+                var splits = newValue.Split('.');
+                newValue = splits[0] + '.' + splits[1];
+                return newValue; 
+            }
         }
 
         #region Errors

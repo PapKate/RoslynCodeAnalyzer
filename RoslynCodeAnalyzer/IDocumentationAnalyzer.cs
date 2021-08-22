@@ -14,6 +14,6 @@ namespace RoslynCodeAnalyzer
         /// </summary>
         /// <param name="types"></param>
         /// <param name="directoryPath">The directory path</param>
-        void Analyze(IEnumerable<Type> types, string directoryPath);
+        IEnumerable<ClassCommentInformation> Analyze(IEnumerable<Type> types, string directoryPath);
     }
 }

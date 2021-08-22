@@ -23,7 +23,7 @@ namespace RoslynCodeAnalyzer
         {
             var xmlAnalyzer = new XmlDocumentationAnalyzer();
             
-            xmlAnalyzer.AnalyzeFile();
+            var result = xmlAnalyzer.Analyze(new List<Type>() { typeof(Test) }, Constants.XmlFilePath);
 
             var roslynAnalyzer = new RoslynDocumentationAnalyzer();
 

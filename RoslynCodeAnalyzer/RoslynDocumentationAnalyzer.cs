@@ -35,10 +35,24 @@ namespace RoslynCodeAnalyzer
 
         }
 
+
         #endregion
 
         #region Public Methods
 
+        /// <summary>
+        /// Analyzers the files of the directory with the specified <paramref name="directoryPath"/> and
+        /// extracts all the documentation information
+        /// </summary>
+        /// <param name="types"></param>
+        /// <param name="directoryPath">The directory path</param>
+        public IEnumerable<ClassCommentInformation> Analyze(IEnumerable<Type> types, string directoryPath)
+        {
+            var result = new List<ClassCommentInformation>();
+
+
+            return result;
+        }
 
         /// <summary>
         /// Analyzes a .cs file with Roslyn
@@ -60,7 +74,7 @@ namespace RoslynCodeAnalyzer
 
             // Gets the tree's members
             var members = tree.GetRoot().DescendantNodes().OfType<MemberDeclarationSyntax>();
-            
+
             var classes = new List<ClassCommentInformation>();
 
             var multipleMethodCommentsData = new List<MethodCommentInformation>();
@@ -70,7 +84,7 @@ namespace RoslynCodeAnalyzer
             var namespaceName = string.Empty;
 
             // For each member in members...
-            foreach(var member in members)
+            foreach (var member in members)
             {
                 // If the member is a class...
                 if (member is ClassDeclarationSyntax classSyntax)
@@ -79,7 +93,7 @@ namespace RoslynCodeAnalyzer
                     var xml = GetXml(classSyntax, classSyntax.Identifier, Constants.ClassTag);
 
                     var summaryComments = string.Empty;
-                    
+
                     // If the class has no comments...
                     if (xml == null)
                         // Prints in the out put console a message
@@ -91,7 +105,7 @@ namespace RoslynCodeAnalyzer
                         var summarySyntax = GetSummary(xml, classSyntax.Identifier, Constants.ClassTag);
 
                         // Formats correclty the comments
-                        summaryComments = HelperMethods.CleanedCommentsString(summarySyntax.Content.ToString());
+                        summaryComments = HelperMethods.CleanCommentString(summarySyntax.Content.ToString());
                     }
 
                     // Gets the class' name
@@ -117,7 +131,7 @@ namespace RoslynCodeAnalyzer
 
             foreach (var member in members)
             {
-                if(member is ClassDeclarationSyntax classSyntax)
+                if (member is ClassDeclarationSyntax classSyntax)
                 {
                     var xml = GetXml(classSyntax, classSyntax.Identifier, Constants.ClassTag);
                     var baseClasses = xml.ChildNodes()
@@ -141,7 +155,7 @@ namespace RoslynCodeAnalyzer
                     // Comments the clean version of summary
                     // CommentCref the list with the cref elements
                     multiplePropertyCommentsData.Add(new PropertyCommentInformation()
-                    { 
+                    {
                         Name = propertySyntax.Identifier.ToString(),
                         Comments = clean.ToString(),
                         CommentParameters = list
@@ -227,7 +241,7 @@ namespace RoslynCodeAnalyzer
 
             foreach (var methodData in multipleMethodCommentsData)
             {
-                Console.WriteLine($"Method Name : {methodData.Name}\nSummary : {methodData.Comments}\n");
+                Console.WriteLine($"Method Name : {methodData.Name}\nSummary : {methodData.Summary}\n");
             }
         }
 
@@ -249,7 +263,7 @@ namespace RoslynCodeAnalyzer
             {
                 // Prints message to the output console
                 Debug.WriteLine($"The {declarationSyntaxType} with name: {identifier} does NOT have any comments!");
-                
+
                 return null;
             }
 
@@ -293,7 +307,7 @@ namespace RoslynCodeAnalyzer
         {
             // Gets the text inside the <summary> </sumarry> area and...
             // Filters the string and removes the specified strings
-            var clean = HelperMethods.CleanedCommentsString(summary.Content.ToString());
+            var clean = HelperMethods.CleanCommentString(summary.Content.ToString());
 
             // Replaces the multiple spaces with a single one
             clean = HelperMethods.CleanStringFromExtraSpaces(clean);
@@ -339,8 +353,8 @@ namespace RoslynCodeAnalyzer
 
                     // If a param ref exists...
                     if (paramref != null)
-                            // Adds to the summary comments parameters a new parameterCommentsInformation with name the param ref's identifier
-                            summaryCommentParameters.Add(parameterComments.First(x => x.Name == paramref.Identifier.ToString()));
+                        // Adds to the summary comments parameters a new parameterCommentsInformation with name the param ref's identifier
+                        summaryCommentParameters.Add(parameterComments.First(x => x.Name == paramref.Identifier.ToString()));
                 }
             }
 

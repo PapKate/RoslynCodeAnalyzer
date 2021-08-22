@@ -10,7 +10,7 @@
         /// <summary>
         /// The path to the cs class file
         /// </summary>
-        public const string CsFilePath = @"C:\Users\PapKate\Documents\PersonalProjects\C#\RoslynCodeAnalyzer\RoslynCodeAnalyzer\MethodCommentInformation.cs";
+        public const string CsFilePath = @"C:\Users\PapKate\Documents\PersonalProjects\C#\RoslynCodeAnalyzer\RoslynCodeAnalyzer\Test.cs";
 
         /// <summary>
         /// The path to the xml file
@@ -116,6 +116,9 @@
 
         #endregion
 
-
+        /// <summary>
+        /// The object class' name
+        /// </summary>
+        public const string ObjectClass = "Object";
     }
 }
