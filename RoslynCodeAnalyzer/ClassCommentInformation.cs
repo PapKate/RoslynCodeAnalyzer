@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace RoslynCodeAnalyzer
 {
@@ -11,9 +12,9 @@ namespace RoslynCodeAnalyzer
         #region Private Members
 
         /// <summary>
-        /// The classes
+        /// The base classes
         /// </summary>
-        private readonly List<ClassCommentInformation> mClassCommentInformations = new List<ClassCommentInformation>();
+        private readonly List<Type> mClassCommentInformations = new List<Type>();
 
         /// <summary>
         /// The methods
@@ -37,7 +38,7 @@ namespace RoslynCodeAnalyzer
         /// <summary>
         /// The classes from the inheritance 
         /// </summary>
-        public IEnumerable<ClassCommentInformation> BaseClasses 
+        public IEnumerable<Type> BaseClasses 
         {
             get { return mClassCommentInformations; }
         }
@@ -65,7 +66,7 @@ namespace RoslynCodeAnalyzer
         /// <summary>
         /// Default constructor
         /// </summary>
-        public ClassCommentInformation(Type classType)
+        public ClassCommentInformation(Type classType, string summary) : base(DeclarationSyntaxType.Class, classType.FullName, summary)
         {
             ClassType = classType ?? throw new ArgumentNullException(nameof(classType));
         }
@@ -78,7 +79,7 @@ namespace RoslynCodeAnalyzer
         /// Adds a <paramref name="value"/> to the <see cref="mClassCommentInformations"/>
         /// </summary>
         /// <param name="value">The value</param>
-        internal void Add(ClassCommentInformation value)
+        internal void Add(Type value)
         {
             // Adds to the member the value
             mClassCommentInformations.Add(value);
@@ -95,6 +96,17 @@ namespace RoslynCodeAnalyzer
         }
 
         /// <summary>
+        /// Adds a list of <paramref name="methods"/> to the <see cref="mMethodCommentInformations"/>
+        /// </summary>
+        /// <param name="methods">The properties</param>
+        internal void AddRange(IEnumerable<MethodCommentInformation> methods)
+        {
+            foreach(var method in methods)
+                if (!mMethodCommentInformations.Contains(method))
+                    mMethodCommentInformations.Add(method);
+        }
+
+        /// <summary>
         /// Adds a <paramref name="value"/> to the <see cref="mPropertyCommentInformations"/>
         /// </summary>
         /// <param name="value">The value</param>
@@ -102,6 +114,17 @@ namespace RoslynCodeAnalyzer
         {
             // Adds to the member the value
             mPropertyCommentInformations.Add(value);
+        }
+
+        /// <summary>
+        /// Adds a list of <paramref name="properties"/> to the <see cref="mPropertyCommentInformations"/>
+        /// </summary>
+        /// <param name="properties">The properties</param>
+        internal void AddRange(IEnumerable<PropertyCommentInformation> properties)
+        {
+            foreach (var property in properties)
+                if (!mPropertyCommentInformations.Contains(property))
+                    mPropertyCommentInformations.Add(property);
         }
 
         #endregion

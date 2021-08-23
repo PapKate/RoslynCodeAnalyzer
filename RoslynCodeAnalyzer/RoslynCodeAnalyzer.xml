@@ -14,15 +14,34 @@
             The name
             </summary>
         </member>
-        <member name="P:RoslynCodeAnalyzer.BaseCommentInformation.Comments">
+        <member name="P:RoslynCodeAnalyzer.BaseCommentInformation.Summary">
             <summary>
-            The comments
+            The summary comment
             </summary>
         </member>
-        <member name="M:RoslynCodeAnalyzer.BaseCommentInformation.#ctor">
+        <member name="P:RoslynCodeAnalyzer.BaseCommentInformation.DeclarationSyntaxType">
+            <summary>
+            The declaration syntax type
+            </summary>
+        </member>
+        <member name="P:RoslynCodeAnalyzer.BaseCommentInformation.CommentCrefs">
+            <summary>
+            The parameters that are used in the summary
+            </summary>
+        </member>
+        <member name="M:RoslynCodeAnalyzer.BaseCommentInformation.#ctor(RoslynCodeAnalyzer.DeclarationSyntaxType,System.String,System.String)">
             <summary>
             Default constructor
             </summary>
+            <param name="declarationSyntaxType">The declaration syntax type</param>
+            <param name="name">The name</param>
+            <param name="summary">The summary comment</param>
+        </member>
+        <member name="M:RoslynCodeAnalyzer.BaseCommentInformation.ToString">
+            <summary>
+            Returns a string that represents the current object
+            </summary>
+            <returns></returns>
         </member>
         <member name="T:RoslynCodeAnalyzer.ClassCommentInformation">
             <summary>
@@ -31,7 +50,7 @@
         </member>
         <member name="F:RoslynCodeAnalyzer.ClassCommentInformation.mClassCommentInformations">
             <summary>
-            The classes
+            The base classes
             </summary>
         </member>
         <member name="F:RoslynCodeAnalyzer.ClassCommentInformation.mMethodCommentInformations">
@@ -64,12 +83,12 @@
             The properties
             </summary>
         </member>
-        <member name="M:RoslynCodeAnalyzer.ClassCommentInformation.#ctor(System.Type)">
+        <member name="M:RoslynCodeAnalyzer.ClassCommentInformation.#ctor(System.Type,System.String)">
             <summary>
             Default constructor
             </summary>
         </member>
-        <member name="M:RoslynCodeAnalyzer.ClassCommentInformation.Add(RoslynCodeAnalyzer.ClassCommentInformation)">
+        <member name="M:RoslynCodeAnalyzer.ClassCommentInformation.Add(System.Type)">
             <summary>
             Adds a <paramref name="value"/> to the <see cref="F:RoslynCodeAnalyzer.ClassCommentInformation.mClassCommentInformations"/>
             </summary>
@@ -81,11 +100,23 @@
             </summary>
             <param name="value">The value</param>
         </member>
+        <member name="M:RoslynCodeAnalyzer.ClassCommentInformation.AddRange(System.Collections.Generic.IEnumerable{RoslynCodeAnalyzer.MethodCommentInformation})">
+            <summary>
+            Adds a list of <paramref name="methods"/> to the <see cref="F:RoslynCodeAnalyzer.ClassCommentInformation.mMethodCommentInformations"/>
+            </summary>
+            <param name="methods">The properties</param>
+        </member>
         <member name="M:RoslynCodeAnalyzer.ClassCommentInformation.Add(RoslynCodeAnalyzer.PropertyCommentInformation)">
             <summary>
             Adds a <paramref name="value"/> to the <see cref="F:RoslynCodeAnalyzer.ClassCommentInformation.mPropertyCommentInformations"/>
             </summary>
             <param name="value">The value</param>
+        </member>
+        <member name="M:RoslynCodeAnalyzer.ClassCommentInformation.AddRange(System.Collections.Generic.IEnumerable{RoslynCodeAnalyzer.PropertyCommentInformation})">
+            <summary>
+            Adds a list of <paramref name="properties"/> to the <see cref="F:RoslynCodeAnalyzer.ClassCommentInformation.mPropertyCommentInformations"/>
+            </summary>
+            <param name="properties">The properties</param>
         </member>
         <member name="T:RoslynCodeAnalyzer.Constants">
             <summary>
@@ -100,6 +131,11 @@
         <member name="F:RoslynCodeAnalyzer.Constants.XmlFilePath">
             <summary>
             The path to the xml file
+            </summary>
+        </member>
+        <member name="F:RoslynCodeAnalyzer.Constants.DirectoryPath">
+            <summary>
+            The directory path
             </summary>
         </member>
         <member name="F:RoslynCodeAnalyzer.Constants.SummaryXmlStartMember">
@@ -187,19 +223,64 @@
             The "("
             </summary>
         </member>
-        <member name="T:RoslynCodeAnalyzer.CrefCommentInformation">
+        <member name="F:RoslynCodeAnalyzer.Constants.ObjectClass">
             <summary>
-            Provides information about the documentation comments of a cref
+            The object class' name
             </summary>
         </member>
-        <member name="P:RoslynCodeAnalyzer.CrefCommentInformation.Class">
+        <member name="T:RoslynCodeAnalyzer.CRef">
             <summary>
-            The class
+            Provides information about the documentation comments of a  see cref 
             </summary>
         </member>
-        <member name="M:RoslynCodeAnalyzer.CrefCommentInformation.#ctor">
+        <member name="P:RoslynCodeAnalyzer.CRef.Name">
+            <summary>
+            The name of the cref
+            </summary>
+        </member>
+        <member name="P:RoslynCodeAnalyzer.CRef.Parent">
+            <summary>
+            The comment information that contains the cref
+            </summary>
+        </member>
+        <member name="M:RoslynCodeAnalyzer.CRef.#ctor(System.String,RoslynCodeAnalyzer.BaseCommentInformation)">
             <summary>
             Default constructor
+            </summary>
+        </member>
+        <member name="T:RoslynCodeAnalyzer.DeclarationSyntaxType">
+            <summary>
+            Provides enumeration over the syntax types
+            </summary>
+        </member>
+        <member name="F:RoslynCodeAnalyzer.DeclarationSyntaxType.Class">
+            <summary>
+            The information is related to a class
+            </summary>
+        </member>
+        <member name="F:RoslynCodeAnalyzer.DeclarationSyntaxType.Property">
+            <summary>
+            The information is related to a property
+            </summary>
+        </member>
+        <member name="F:RoslynCodeAnalyzer.DeclarationSyntaxType.Method">
+            <summary>
+            The information is related to a method
+            </summary>
+        </member>
+        <member name="F:RoslynCodeAnalyzer.DeclarationSyntaxType.Parameter">
+            <summary>
+            The information is related to a parameter
+            </summary>
+        </member>
+        <member name="F:RoslynCodeAnalyzer.DeclarationSyntaxType.Interface">
+            <summary>
+            The information is related to an interface
+            </summary>
+        </member>
+        <member name="F:RoslynCodeAnalyzer.DeclarationSyntaxType.Struct">
+            <summary>
+            The information is related to a struct / value type
             </summary>
         </member>
         <member name="T:RoslynCodeAnalyzer.IDocumentationAnalyzer">
@@ -222,7 +303,7 @@
         </member>
         <member name="P:RoslynCodeAnalyzer.MethodCommentInformation.SummaryCommentParameters">
             <summary>
-            The parameters that are used in the <see cref="P:RoslynCodeAnalyzer.BaseCommentInformation.Comments"/> <see cref="P:RoslynCodeAnalyzer.BaseCommentInformation.Name"/>
+            The parameters that are used in the <see cref="P:RoslynCodeAnalyzer.BaseCommentInformation.Summary"/> 
             </summary>
         </member>
         <member name="P:RoslynCodeAnalyzer.MethodCommentInformation.Parameters">
@@ -230,46 +311,12 @@
             The parameters' data
             </summary>
         </member>
-        <member name="M:RoslynCodeAnalyzer.MethodCommentInformation.#ctor">
+        <member name="M:RoslynCodeAnalyzer.MethodCommentInformation.#ctor(System.String,System.String)">
             <summary>
             Default constructor
             </summary>
-        </member>
-        <member name="M:RoslynCodeAnalyzer.MethodCommentInformation.CreateCommentsData(System.String,System.String,System.Int32,System.Collections.Generic.IEnumerable{RoslynCodeAnalyzer.ParameterCommentInformation})">
-            <summary>
-            Testing the specified <paramref name="comments"/> yes <see cref="P:RoslynCodeAnalyzer.BaseCommentInformation.Comments"/>
-            </summary>
-            <param name="comments">Thee comments <paramref name="oof"/> <see cref="P:RoslynCodeAnalyzer.BaseCommentInformation.Name"/> <paramref name="comments"/></param>
-            <param name="test">The test rgdrg
-            drgrdgdrgdrgt</param>
-            <param name="oof">Aaaaaaaa <paramref name="comments"/></param>
-            <param name="parameterDatas">ola kala OPA</param>
-        </member>
-        <member name="M:RoslynCodeAnalyzer.MethodCommentInformation.GetCommentsData">
-            <summary>
-            The comments data
-            </summary>
-        </member>
-        <member name="M:RoslynCodeAnalyzer.MethodCommentInformation.SetCommentsData(System.String,System.String,System.Int32,System.Collections.Generic.IEnumerable{RoslynCodeAnalyzer.ParameterCommentInformation})">
-            <param name="comments"></param>
-            <param name="test"></param>
-            <param name="oof"></param>
-            <param name="parameterDatas"></param>
-        </member>
-        <member name="M:RoslynCodeAnalyzer.MethodCommentInformation.DeleteCommentsData(System.String,System.String,System.Int32,System.Collections.Generic.IEnumerable{RoslynCodeAnalyzer.ParameterCommentInformation})">
-            <summary>
-            dwdwdwdw
-            </summary>
-        </member>
-        <member name="M:RoslynCodeAnalyzer.MethodCommentInformation.DroseraComments(System.String,System.String,System.Int32,System.Collections.Generic.IEnumerable{RoslynCodeAnalyzer.ParameterCommentInformation})">
-            <summary>
-            The comments datatatatatata
-            </summary>
-            <param name="comments">Thee comments <paramref name="oof"/> <paramref name="parameterDatas"/></param>
-            <param name="test">The test rgdrg
-            drgrdgdrgdrgt</param>
-            <param name="oof">Aaaaaaaa</param>
-            <param name="parameterDatas">ola kala OPA</param>
+            <param name="name">The name</param>
+            <param name="summary">The summary comment</param>
         </member>
         <member name="T:RoslynCodeAnalyzer.HelperMethods">
             <summary>
@@ -290,7 +337,7 @@
             <param name="value">The string</param>
             <returns></returns>
         </member>
-        <member name="M:RoslynCodeAnalyzer.HelperMethods.CleanedCommentsString(System.String)">
+        <member name="M:RoslynCodeAnalyzer.HelperMethods.CleanCommentString(System.String)">
             <summary>
             Cleans and formats the summary comments
             </summary>
@@ -319,6 +366,13 @@
             <param name="value">The value</param>
             <returns></returns>
         </member>
+        <member name="M:RoslynCodeAnalyzer.HelperMethods.GetFullClassName(System.String)">
+            <summary>
+            
+            </summary>
+            <param name="value"></param>
+            <returns></returns>
+        </member>
         <member name="M:RoslynCodeAnalyzer.HelperMethods.MissingParamCommentsOutputError(System.String)">
             <summary>
             Prints message to the output console
@@ -339,20 +393,25 @@
             Provides information about the documentation comments of a parameter of a method
             </summary>
         </member>
-        <member name="P:RoslynCodeAnalyzer.ParameterCommentInformation.XmlElement">
-            <summary>
-            The xml element
-            </summary>
-        </member>
         <member name="P:RoslynCodeAnalyzer.ParameterCommentInformation.CommentParameters">
             <summary>
-            The parameters that are used in the <see cref="P:RoslynCodeAnalyzer.BaseCommentInformation.Comments"/>
+            The parameters that are used in the <see cref="P:RoslynCodeAnalyzer.BaseCommentInformation.Summary"/>
             </summary>
         </member>
-        <member name="M:RoslynCodeAnalyzer.ParameterCommentInformation.#ctor">
+        <member name="M:RoslynCodeAnalyzer.ParameterCommentInformation.#ctor(System.String,System.String)">
             <summary>
             Default constructor
             </summary>
+            <param name="name">The name</param>
+            <param name="summary">The summary comment</param>
+        </member>
+        <member name="M:RoslynCodeAnalyzer.ParameterCommentInformation.#ctor(RoslynCodeAnalyzer.DeclarationSyntaxType,System.String,System.String)">
+            <summary>
+            Default constructor
+            </summary>
+            <param name="declarationSyntaxType">The declaration syntax type</param>
+            <param name="name">The name</param>
+            <param name="summary">The summary comment</param>
         </member>
         <member name="T:RoslynCodeAnalyzer.Program">
             <summary>
@@ -370,10 +429,12 @@
             Provides information about the document comments of a property
             </summary>
         </member>
-        <member name="M:RoslynCodeAnalyzer.PropertyCommentInformation.#ctor">
+        <member name="M:RoslynCodeAnalyzer.PropertyCommentInformation.#ctor(System.String,System.String)">
             <summary>
             Default constructor
             </summary>
+            <param name="name">The name</param>
+            <param name="summary">The summary comment</param>
         </member>
         <member name="T:RoslynCodeAnalyzer.RoslynDocumentationAnalyzer">
             <summary>
@@ -390,10 +451,33 @@
             Default constructor
             </summary>
         </member>
-        <member name="M:RoslynCodeAnalyzer.RoslynDocumentationAnalyzer.AnalyzeFile">
+        <member name="M:RoslynCodeAnalyzer.RoslynDocumentationAnalyzer.Analyze(System.Collections.Generic.IEnumerable{System.Type},System.String)">
             <summary>
-            Analyzes a .cs file with Roslyn
+            Analyzers the files of the directory with the specified <paramref name="directoryPath"/> and
+            extracts all the documentation information
             </summary>
+            <param name="types"></param>
+            <param name="directoryPath">The directory path</param>
+        </member>
+        <member name="M:RoslynCodeAnalyzer.RoslynDocumentationAnalyzer.GetBaseClasses(System.Type)">
+            <summary>
+            Gets all the base classes of a class
+            </summary>
+            <param name="classType">The class type</param>
+        </member>
+        <member name="M:RoslynCodeAnalyzer.RoslynDocumentationAnalyzer.AnalyzeProperty(Microsoft.CodeAnalysis.CSharp.Syntax.PropertyDeclarationSyntax,System.Collections.Generic.IEnumerable{RoslynCodeAnalyzer.ClassCommentInformation})">
+            <summary>
+            Analyzes a property
+            </summary>
+            <param name="member"></param>
+            <param name="classes"></param>
+        </member>
+        <member name="M:RoslynCodeAnalyzer.RoslynDocumentationAnalyzer.AnalyzeMethod(Microsoft.CodeAnalysis.CSharp.Syntax.MethodDeclarationSyntax,System.Collections.Generic.IEnumerable{RoslynCodeAnalyzer.ClassCommentInformation})">
+            <summary>
+            
+            </summary>
+            <param name="member"></param>
+            <param name="classes"></param>
         </member>
         <member name="M:RoslynCodeAnalyzer.RoslynDocumentationAnalyzer.GetXml(Microsoft.CodeAnalysis.CSharp.Syntax.MemberDeclarationSyntax,Microsoft.CodeAnalysis.SyntaxToken,System.String)">
             <summary>
@@ -419,39 +503,143 @@
             <param name="summary">The summary</param>
             <returns></returns>
         </member>
-        <member name="M:RoslynCodeAnalyzer.RoslynDocumentationAnalyzer.FilterThroughEmptyElements(Microsoft.CodeAnalysis.CSharp.Syntax.XmlElementSyntax,System.Collections.Generic.List{RoslynCodeAnalyzer.ParameterCommentInformation})">
+        <member name="M:RoslynCodeAnalyzer.RoslynDocumentationAnalyzer.GetParamRefsFromMethodSummary(Microsoft.CodeAnalysis.CSharp.Syntax.XmlElementSyntax,System.Collections.Generic.List{RoslynCodeAnalyzer.ParameterCommentInformation})">
             <summary>
             Filters through summary and gets the empty elements
             </summary>
             <param name="summary">The summary</param>
             <param name="parameterComments"></param>
         </member>
-        <member name="M:RoslynCodeAnalyzer.RoslynDocumentationAnalyzer.FilterThroughEmptyElements(Microsoft.CodeAnalysis.CSharp.Syntax.XmlElementSyntax)">
+        <member name="M:RoslynCodeAnalyzer.RoslynDocumentationAnalyzer.GetCRefFromParent(Microsoft.CodeAnalysis.CSharp.Syntax.XmlElementSyntax,RoslynCodeAnalyzer.BaseCommentInformation)">
             <summary>
             Filters through summary and gets the empty elements
             </summary>
             <param name="summary">The summary</param>
+            <param name="parent">The parent</param>
         </member>
-        <member name="M:RoslynCodeAnalyzer.RoslynDocumentationAnalyzer.GetAllFilesFromDirectory">
+        <member name="M:RoslynCodeAnalyzer.RoslynDocumentationAnalyzer.GetAllFilesFromDirectory(System.String)">
             <summary>
             
             </summary>
+        </member>
+        <member name="T:RoslynCodeAnalyzer.Test">
+            <summary>
+            A class for tests 
+            Inherits from <see cref="T:RoslynCodeAnalyzer.ClassCommentInformation"/>
+            </summary>
+        </member>
+        <member name="P:RoslynCodeAnalyzer.Test.StringTest">
+            <summary>
+            Test string <see cref="P:RoslynCodeAnalyzer.ClassCommentInformation.Properties"/>
+            </summary>
+        </member>
+        <member name="M:RoslynCodeAnalyzer.Test.#ctor(System.Type,System.String)">
+            <summary>
+            Default constructor
+            </summary>
+        </member>
+        <member name="M:RoslynCodeAnalyzer.Test.CreateCommentsData(System.String,System.String,System.Int32,System.Collections.Generic.IEnumerable{RoslynCodeAnalyzer.ParameterCommentInformation})">
+            <summary>
+            Testing the specified <paramref name="comments"/> yes <see cref="P:RoslynCodeAnalyzer.BaseCommentInformation.Summary"/>
+            </summary>
+            <param name="comments">Thee comments <paramref name="oof"/> <see cref="P:RoslynCodeAnalyzer.BaseCommentInformation.Name"/> <paramref name="comments"/></param>
+            <param name="test">The test rgdrg
+            drgrdgdrgdrgt</param>
+            <param name="oof">Aaaaaaaa <paramref name="comments"/></param>
+            <param name="parameterDatas">ola kala OPA</param>
+        </member>
+        <member name="M:RoslynCodeAnalyzer.Test.GetCommentsData">
+            <summary>
+            The comments data
+            </summary>
+        </member>
+        <member name="M:RoslynCodeAnalyzer.Test.SetCommentsData(System.String,System.String,System.Int32,System.Collections.Generic.IEnumerable{RoslynCodeAnalyzer.ParameterCommentInformation})">
+            <param name="comments"></param>
+            <param name="test"></param>
+            <param name="oof"></param>
+            <param name="parameterDatas"></param>
+        </member>
+        <member name="M:RoslynCodeAnalyzer.Test.DeleteCommentsData(System.String,System.String,System.Int32,System.Collections.Generic.IEnumerable{RoslynCodeAnalyzer.ParameterCommentInformation})">
+            <summary>
+            dwdwdwdw
+            </summary>
+        </member>
+        <member name="M:RoslynCodeAnalyzer.Test.DroseraComments(System.String,System.String,System.Int32,System.Collections.Generic.IEnumerable{RoslynCodeAnalyzer.ParameterCommentInformation})">
+            <summary>
+            The comments datatatatatata
+            </summary>
+            <param name="comments">Thee comments <paramref name="oof"/> <paramref name="parameterDatas"/></param>
+            <param name="test">The test rgdrg
+            drgrdgdrgdrgt</param>
+            <param name="oof">Aaaaaaaa</param>
+            <param name="parameterDatas">ola kala OPA</param>
         </member>
         <member name="T:RoslynCodeAnalyzer.XmlDocumentationAnalyzer">
             <summary>
             Responsible for analyzing a .xml file
             </summary>
         </member>
-        <member name="M:RoslynCodeAnalyzer.XmlDocumentationAnalyzer.AnalyzeFile">
+        <member name="M:RoslynCodeAnalyzer.XmlDocumentationAnalyzer.Analyze(System.Collections.Generic.IEnumerable{System.Type},System.String)">
             <summary>
-            Analyzes an XML file
+            Analyzers the files of the directory with the specified <paramref name="directoryPath"/> and
+            extracts all the documentation information
             </summary>
+            <param name="types"></param>
+            <param name="directoryPath">The directory path</param>
         </member>
-        <member name="M:RoslynCodeAnalyzer.XmlDocumentationAnalyzer.FormatMethodName(System.String)">
+        <member name="M:RoslynCodeAnalyzer.XmlDocumentationAnalyzer.AnalyzeMember(System.Xml.XmlNode,System.Collections.Generic.List{RoslynCodeAnalyzer.ClassCommentInformation},System.Xml.XmlNodeList)">
             <summary>
-            Formats a method's full name
+            
             </summary>
-            <param name="value">The method's full name</param>
+            <param name="memberNode"></param>
+            <param name="result"></param>
+            <param name="members"></param>
+        </member>
+        <member name="M:RoslynCodeAnalyzer.XmlDocumentationAnalyzer.GetBaseClasses(System.Type)">
+            <summary>
+            Gets all the base classes of a class
+            </summary>
+            <param name="classType">The class type</param>
+        </member>
+        <member name="M:RoslynCodeAnalyzer.XmlDocumentationAnalyzer.AnalyzeClass(System.Xml.XmlNode,System.Xml.XmlNodeList)">
+            <summary>
+            Analyzes a class
+            </summary>
+            <param name="memberNode">The class' XML node</param>
+            <param name="members"></param>
+        </member>
+        <member name="M:RoslynCodeAnalyzer.XmlDocumentationAnalyzer.AnalyzeProperty(System.Xml.XmlNode,System.Collections.Generic.IEnumerable{RoslynCodeAnalyzer.ClassCommentInformation})">
+            <summary>
+            Analyzes a property
+            </summary>
+            <param name="memberNode">The property member node</param>
+            <param name="classes">The list with all the <see cref="T:RoslynCodeAnalyzer.ClassCommentInformation"/></param>
+        </member>
+        <member name="M:RoslynCodeAnalyzer.XmlDocumentationAnalyzer.AnalyzeMethod(System.Xml.XmlNode,System.Collections.Generic.IEnumerable{RoslynCodeAnalyzer.ClassCommentInformation})">
+            <summary>
+            Analyzes a method
+            </summary>
+            <param name="memberNode">The method's XML node</param>
+            <param name="classes">The list with all the <see cref="T:RoslynCodeAnalyzer.ClassCommentInformation"/></param>
+        </member>
+        <member name="M:RoslynCodeAnalyzer.XmlDocumentationAnalyzer.SetCommentReferences(System.Xml.XmlNodeList,System.Collections.Generic.List{RoslynCodeAnalyzer.ParameterCommentInformation},System.Collections.Generic.List{RoslynCodeAnalyzer.ParameterCommentInformation},System.Collections.Generic.List{RoslynCodeAnalyzer.CRef},RoslynCodeAnalyzer.BaseCommentInformation)">
+            <summary>
+            Gets from the given <paramref name="nodeList"/> the empty elements' names of the each node's summary
+            Searches through the <paramref name="paramRefsInSummary"/> if an object with the same name already exists...
+            If yes adds it to the <paramref name="commentParameters"/>...
+            Else creates a new object and adds that to the list
+            </summary>
+            <param name="nodeList">The list of nodes</param>
+            <param name="paramRefsInSummary">The parameters of a method</param>
+            <param name="commentParameters">The references in the comments</param>
+            <param name="cRefsInSummary"></param>
+            <param name="parent"></param>
+        </member>
+        <member name="M:RoslynCodeAnalyzer.XmlDocumentationAnalyzer.GetCRefName(System.Xml.XmlNode)">
+            <summary>
+            
+            </summary>
+            <param name="memberNode"></param>
             <returns></returns>
         </member>
         <member name="M:RoslynCodeAnalyzer.XmlDocumentationAnalyzer.GetNodeElementName(System.Xml.XmlNode)">
@@ -461,16 +649,12 @@
             <param name="node">The node</param>
             <returns></returns>
         </member>
-        <member name="M:RoslynCodeAnalyzer.XmlDocumentationAnalyzer.SetCommentReferences(System.Xml.XmlNodeList,System.Collections.Generic.List{RoslynCodeAnalyzer.ParameterCommentInformation},System.Collections.Generic.List{RoslynCodeAnalyzer.ParameterCommentInformation})">
+        <member name="M:RoslynCodeAnalyzer.XmlDocumentationAnalyzer.FormatMethodName(System.String)">
             <summary>
-            Gets from the given <paramref name="nodeList"/> the empty elements' names of the each node's summary
-            Searches through the <paramref name="multipleParameterCommentInformation"/> if an object with the same name already exists...
-            If yes adds it to the <paramref name="commentParameters"/>...
-            Else creates a new object and adds that to the list
+            Formats a method's full name
             </summary>
-            <param name="nodeList">The list of nodes</param>
-            <param name="multipleParameterCommentInformation">The parameters of a method</param>
-            <param name="commentParameters">The references in the comments</param>
+            <param name="value">The method's full name</param>
+            <returns></returns>
         </member>
     </members>
 </doc>
