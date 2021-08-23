@@ -15,11 +15,6 @@ namespace RoslynCodeAnalyzer
         /// </summary>
         public IEnumerable<ParameterCommentInformation> SummaryCommentParameters { get; set; } = Enumerable.Empty<ParameterCommentInformation>();
 
-        /// <summary>
-        /// The parameters that are used in the <see cref="BaseCommentInformation.Summary"/> 
-        /// </summary>
-        public IEnumerable<CRef> SummaryCommentCRefs { get; set; } = Enumerable.Empty<CRef>();
-
 
         /// <summary>
         /// The parameters' data

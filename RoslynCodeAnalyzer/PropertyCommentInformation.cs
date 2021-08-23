@@ -13,11 +13,6 @@ namespace RoslynCodeAnalyzer
     {
         #region Public Properties
 
-        /// <summary>
-        /// The parameters that are used in the <see cref="BaseCommentInformation.Summary"/>
-        /// </summary>
-        public IEnumerable<CRef> CommentCrefs { get; set; } = Enumerable.Empty<CRef>();
-
         #endregion
 
         #region Constructors

@@ -7,7 +7,8 @@ using System.Threading.Tasks;
 namespace RoslynCodeAnalyzer
 {
     /// <summary>
-    /// A class for tests
+    /// A class for tests 
+    /// Inherits from <see cref="ClassCommentInformation"/>
     /// </summary>
     public class Test : ClassCommentInformation
     {

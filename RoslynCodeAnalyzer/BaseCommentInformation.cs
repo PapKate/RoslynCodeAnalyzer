@@ -1,7 +1,9 @@
 ﻿using Atom.Core;
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace RoslynCodeAnalyzer
 {
@@ -26,6 +28,11 @@ namespace RoslynCodeAnalyzer
         /// The declaration syntax type
         /// </summary>
         public DeclarationSyntaxType DeclarationSyntaxType { get; }
+
+        /// <summary>
+        /// The parameters that are used in the summary
+        /// </summary>
+        public IEnumerable<CRef> CommentCrefs { get; set; } = Enumerable.Empty<CRef>();
 
         #endregion
 

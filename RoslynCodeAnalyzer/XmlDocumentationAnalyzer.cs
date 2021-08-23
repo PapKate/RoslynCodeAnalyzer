@@ -45,25 +45,7 @@ namespace RoslynCodeAnalyzer
 
                 if (types.Any(x => x.FullName.Contains(fullClassName)))
                 {
-                    // If the name attribute of the member starts with "T:"...
-                    // Meaning if the member is a class...
-                    if (memberNode.Attributes.GetNamedItem(Constants.NameTag).InnerXml.StartsWith("T:"))
-                    {
-                        result.AddRange(AnalyzeClass(memberNode, members));
-                        
-                    }
-                    // Else if the name attribute of the member starts with "P:"...
-                    // Meaning if the member is a property...
-                    else if (memberNode.Attributes.GetNamedItem(Constants.NameTag).InnerXml.StartsWith("P:"))
-                    {
-                        AnalyzeProperty(memberNode, result);
-                    }
-                    // Else if the name attribute of the member starts with "M:"...
-                    // Meaning if the member is a method OR constructor...
-                    else if (memberNode.Attributes.GetNamedItem(Constants.NameTag).InnerXml.StartsWith("M:"))
-                    {
-                        AnalyzeMethod(memberNode, result);
-                    }
+                    AnalyzeMember(memberNode, result, members);
                 }
             }
 
@@ -82,6 +64,34 @@ namespace RoslynCodeAnalyzer
             result.FirstOrDefault().Methods.ForEach(x => Console.WriteLine(x.Name));
 
             return result;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="memberNode"></param>
+        /// <param name="result"></param>
+        /// <param name="members"></param>
+        private void AnalyzeMember(XmlNode memberNode, List<ClassCommentInformation> result, XmlNodeList members)
+        {
+            // If the name attribute of the member starts with "T:"...
+            // Meaning if the member is a class...
+            if (memberNode.Attributes.GetNamedItem(Constants.NameTag).InnerXml.StartsWith("T:"))
+            {
+                result.AddRange(AnalyzeClass(memberNode, members));
+            }
+            // Else if the name attribute of the member starts with "P:"...
+            // Meaning if the member is a property...
+            else if (memberNode.Attributes.GetNamedItem(Constants.NameTag).InnerXml.StartsWith("P:"))
+            {
+                AnalyzeProperty(memberNode, result);
+            }
+            // Else if the name attribute of the member starts with "M:"...
+            // Meaning if the member is a method OR constructor...
+            else if (memberNode.Attributes.GetNamedItem(Constants.NameTag).InnerXml.StartsWith("M:"))
+            {
+                AnalyzeMethod(memberNode, result);
+            }
         }
 
         /// <summary>
@@ -131,6 +141,25 @@ namespace RoslynCodeAnalyzer
             // Creates a new class comment information object
             var classCommentInformation = new ClassCommentInformation(classType, classSummary);
 
+            // A new list for the comments in the class's summary
+            var classCommentCrefs = new List<CRef>();
+
+            // For each child node in the property's summary node
+            foreach (var classChildData in memberNode.ChildNodes[0].ChildNodes)
+            {
+                // Parses it to an xml node
+                var node = (XmlNode)classChildData;
+
+                if (node.Name == Constants.SeeTag)
+                {
+                    var crefName = GetCRefName(node);
+
+                    classCommentCrefs.Add(new CRef(crefName, classCommentInformation));
+                }
+            }
+
+            classCommentInformation.CommentCrefs = classCommentCrefs;
+
             baseClasses.ForEach(x => classCommentInformation.Add(x));
 
             foreach(var member in members)
@@ -146,24 +175,7 @@ namespace RoslynCodeAnalyzer
                     
                         if(xmlNodeFullName.Contains(baseClass.FullName))
                         {
-                            // If the name attribute of the member starts with "T:"...
-                            // Meaning if the member is a class...
-                            if (node.Attributes.GetNamedItem(Constants.NameTag).InnerXml.StartsWith("T:"))
-                            {
-                                result.AddRange(AnalyzeClass(node, members));
-                            }
-                            // Else if the name attribute of the member starts with "P:"...
-                            // Meaning if the member is a property...
-                            else if (node.Attributes.GetNamedItem(Constants.NameTag).InnerXml.StartsWith("P:"))
-                            {
-                                AnalyzeProperty(node, result);
-                            }
-                            // Else if the name attribute of the member starts with "M:"...
-                            // Meaning if the member is a method OR constructor...
-                            else if (node.Attributes.GetNamedItem(Constants.NameTag).InnerXml.StartsWith("M:"))
-                            {
-                                AnalyzeMethod(node, result);
-                            }
+                            AnalyzeMember(node, result, members);
                         }
                     }
                 }
@@ -215,18 +227,10 @@ namespace RoslynCodeAnalyzer
                 // Parses it to an xml node
                 var node = (XmlNode)propertyChildData;
 
-                // If the node's name is "see"
                 if (node.Name == Constants.SeeTag)
                 {
-                    // Gets the cref's name
-                    var crefName = node.GetAttributeName(Constants.CrefTag);
+                    var crefName = GetCRefName(node);
 
-                    // Sets as method's name the character set after the last '.'
-                    crefName = crefName.Substring(crefName.LastIndexOf(Constants.Dot) + 1);
-
-                    crefName = GetNodeElementName(node);
-
-                    // Creates a new param comment information with name the cref's name
                     propertyCommentCrefs.Add(new CRef(crefName, propertyCommentInformation));
                 }
             }
@@ -287,6 +291,7 @@ namespace RoslynCodeAnalyzer
                     // Adds to the parameters the parameter
                     tempParameters.Add(parameterCommentInformation);
                 }
+                
             }
 
             // For each child node of the member node...
@@ -304,20 +309,27 @@ namespace RoslynCodeAnalyzer
                 // If the node's name is "summary"
                 if (node.Name == Constants.SummaryTag)
                 {
+                    var tempCRefs = new List<CRef>();
+
                     // Gets the summary's child nodes
                     var summaryChildNodes = node.ChildNodes;
 
-                    SetCommentReferences(summaryChildNodes, commentParameters, tempParameters);
+                    SetCommentReferences(summaryChildNodes, commentParameters, tempParameters, tempCRefs, methodCommentInformation);
 
                     // Sets as summary comments the references found
                     methodCommentInformation.SummaryCommentParameters = commentParameters;
+                    methodCommentInformation.CommentCrefs = tempCRefs;
                 }
                 // If the node's name is "param"...
                 else if (node.Name == Constants.ParameterTag)
                 {
-                    SetCommentReferences(paramNodes, commentParameters, tempParameters);
+                    var tempCRefs = new List<CRef>();
 
-                    tempParameters.First(x => x.Name == node.GetAttributeName()).CommentParameters = commentParameters;
+                    var parameter = tempParameters.First(x => x.Name == node.GetAttributeName());
+                    SetCommentReferences(paramNodes, commentParameters, tempParameters, tempCRefs, parameter);
+
+                    parameter.CommentParameters = commentParameters;
+                    parameter.CommentCrefs = tempCRefs;
                 }
             }
 
@@ -331,23 +343,61 @@ namespace RoslynCodeAnalyzer
         }
 
         /// <summary>
-        /// Formats a method's full name
+        /// Gets from the given <paramref name="nodeList"/> the empty elements' names of the each node's summary
+        /// Searches through the <paramref name="paramRefsInSummary"/> if an object with the same name already exists...
+        /// If yes adds it to the <paramref name="commentParameters"/>...
+        /// Else creates a new object and adds that to the list
         /// </summary>
-        /// <param name="value">The method's full name</param>
-        /// <returns></returns>
-        public string FormatMethodName(string value)
+        /// <param name="nodeList">The list of nodes</param>
+        /// <param name="paramRefsInSummary">The parameters of a method</param>
+        /// <param name="commentParameters">The references in the comments</param>
+        /// <param name="cRefsInSummary"></param>
+        /// <param name="parent"></param>
+        public void SetCommentReferences(XmlNodeList nodeList, List<ParameterCommentInformation> paramRefsInSummary, List<ParameterCommentInformation> commentParameters, List<CRef> cRefsInSummary, BaseCommentInformation parent)
         {
-            // If the method name contains a (
-            // Meaning, if the method has parameters...
-            if (value.Contains(Constants.LeftParenthesis))
-                // Sets as the method's name the methods name up to before the (
-                value = value.Substring(0, value.IndexOf(Constants.LeftParenthesis));
+            // For each param in the nodes...
+            foreach (var data in nodeList)
+            {
+                // Parses the child from object to xml node
+                var node = (XmlNode)data;
 
-            // Sets as method's name the character set after the last .
-            value = value.GetLastNameAfterDot();
+                // If the node's name is "see"
+                if (node.Name == Constants.SeeTag)
+                {
+                    // Gets the cref's name
+                    var crefName = GetCRefName(node);
 
-            // Returns the formatted value
-            return value;
+                    cRefsInSummary.Add(new CRef(crefName, parent));
+                }
+                else if (node.Name == Constants.ParameterReferenceTag)
+                {
+                    // Gets the element's name
+                    var nodeName = GetNodeElementName(node);
+                    // Adds the parameter information to the list
+                    paramRefsInSummary.Add(
+                                            // Gets the first param info that has the same name as the node if exists...
+                                            commentParameters.First(x => x.Name == nodeName)
+                                        );
+                }
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="memberNode"></param>
+        /// <returns></returns>
+        private string GetCRefName(XmlNode memberNode)
+        {
+            // Gets the cref's name
+            var crefName = memberNode.GetAttributeName(Constants.CrefTag);
+
+            // Sets as method's name the character set after the last '.'
+            crefName = crefName.Substring(crefName.LastIndexOf(Constants.Dot) + 1);
+
+            crefName = GetNodeElementName(memberNode);
+
+            return crefName;
         }
 
         /// <summary>
@@ -381,37 +431,25 @@ namespace RoslynCodeAnalyzer
         }
 
         /// <summary>
-        /// Gets from the given <paramref name="nodeList"/> the empty elements' names of the each node's summary
-        /// Searches through the <paramref name="multipleParameterCommentInformation"/> if an object with the same name already exists...
-        /// If yes adds it to the <paramref name="commentParameters"/>...
-        /// Else creates a new object and adds that to the list
+        /// Formats a method's full name
         /// </summary>
-        /// <param name="nodeList">The list of nodes</param>
-        /// <param name="multipleParameterCommentInformation">The parameters of a method</param>
-        /// <param name="commentParameters">The references in the comments</param>
-        public void SetCommentReferences(XmlNodeList nodeList, List<ParameterCommentInformation> multipleParameterCommentInformation, List<ParameterCommentInformation> commentParameters)
+        /// <param name="value">The method's full name</param>
+        /// <returns></returns>
+        private string FormatMethodName(string value)
         {
-            // For each param in the nodes...
-            foreach (var data in nodeList)
-            {
-                // Parses the child from object to xml node
-                var node = (XmlNode)data;
+            // If the method name contains a (
+            // Meaning, if the method has parameters...
+            if (value.Contains(Constants.LeftParenthesis))
+                // Sets as the method's name the methods name up to before the (
+                value = value.Substring(0, value.IndexOf(Constants.LeftParenthesis));
 
-                // If the node is of type Element...
-                if (node.NodeType == XmlNodeType.Element)
-                {
-                    // Gets the element's name
-                    var nodeName = GetNodeElementName(node);
-                    // Adds the parameter information to the list
-                    multipleParameterCommentInformation.Add(
-                            // Gets the first param info that has the same name as the node if exists...
-                            commentParameters.FirstOrDefault(x => x.Name == nodeName)
-                            // Else creates a new param info with name the node's name
-                            ?? new ParameterCommentInformation(nodeName, null)
-                        );
-                }
-            }
+            // Sets as method's name the character set after the last .
+            value = value.GetLastNameAfterDot();
+
+            // Returns the formatted value
+            return value;
         }
+
 
         #endregion
 

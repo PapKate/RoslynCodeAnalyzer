@@ -360,7 +360,7 @@ namespace RoslynCodeAnalyzer
 
                         methodCommentInformation.SummaryCommentParameters = GetParamRefsFromMethodSummary(summary, tempParameters);
 
-                        methodCommentInformation.SummaryCommentCRefs = GetCRefFromParent(summary, methodCommentInformation);
+                        methodCommentInformation.CommentCrefs = GetCRefFromParent(summary, methodCommentInformation);
 
                         // Finds the first class that its name the method's full name contains and...
                         classes.First(x => member.Identifier.ToFullString().Contains(x.Name))
