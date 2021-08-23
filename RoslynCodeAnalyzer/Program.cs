@@ -23,11 +23,11 @@ namespace RoslynCodeAnalyzer
         {
             var xmlAnalyzer = new XmlDocumentationAnalyzer();
             
-            var result = xmlAnalyzer.Analyze(new List<Type>() { typeof(Test) }, Constants.XmlFilePath);
+            //var result = xmlAnalyzer.Analyze(new List<Type>() { typeof(Test) }, Constants.XmlFilePath);
 
             var roslynAnalyzer = new RoslynDocumentationAnalyzer();
 
-            //roslynAnalyzer.AnalyzeFile();
+            var roslynResult = roslynAnalyzer.Analyze(new List<Type>() { typeof(Test) }, Constants.CsFilePath);
 
             Console.ReadLine();
         }

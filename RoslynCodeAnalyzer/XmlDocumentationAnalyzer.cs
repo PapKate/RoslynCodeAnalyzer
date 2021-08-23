@@ -227,7 +227,6 @@ namespace RoslynCodeAnalyzer
                     crefName = GetNodeElementName(node);
 
                     // Creates a new param comment information with name the cref's name
-                    // TODO:
                     propertyCommentCrefs.Add(new CRef(crefName, propertyCommentInformation));
                 }
             }

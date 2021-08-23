@@ -15,11 +15,6 @@ namespace RoslynCodeAnalyzer
         #region Public Properties
 
         /// <summary>
-        /// The xml element
-        /// </summary>
-        public XmlElementSyntax XmlElement { get; set; }
-
-        /// <summary>
         /// The parameters that are used in the <see cref="BaseCommentInformation.Summary"/>
         /// </summary>
         public IEnumerable<ParameterCommentInformation> CommentParameters { get; set; } = Enumerable.Empty<ParameterCommentInformation>();

@@ -9,6 +9,9 @@ using System.IO;
 using System.Linq;
 using System.Xml;
 
+using Atom.Core;
+
+
 namespace RoslynCodeAnalyzer
 {
     /// <summary>
@@ -48,140 +51,273 @@ namespace RoslynCodeAnalyzer
         /// <param name="directoryPath">The directory path</param>
         public IEnumerable<ClassCommentInformation> Analyze(IEnumerable<Type> types, string directoryPath)
         {
+            // Gets the tree's members
+            var members = GetAllFilesFromDirectory(directoryPath);
+
             var result = new List<ClassCommentInformation>();
 
+            foreach(var member in members)
+            {
+                if(member is ClassDeclarationSyntax classSyntax)
+                {
+                    var name = classSyntax.Identifier.ToString();
+                    if (types.Any(x => x.FullName.Contains(name)))
+                    {
+                        result.AddRange(AnalyzeClass(classSyntax, members));
+                    }
+                }
+                else if(member is PropertyDeclarationSyntax propertySyntax)
+                {
+                    var name = propertySyntax.Identifier.ToString();
+                    if (types.Any(x => x.FullName.Contains(name)))
+                    {
+                        AnalyzeProperty(propertySyntax, result);
+                    }
+                }
+                // Else if the member is of type MethodDeclarationSyntax...
+                else if (member is MethodDeclarationSyntax methodSyntax)
+                {
+                    var name = methodSyntax.Identifier.ToString();
+                    if (types.Any(x => x.FullName.Contains(name)))
+                    {
+                        AnalyzeMethod(methodSyntax, result);
+                    }
+                }
+            }
+
+            foreach (var classCommentInformation in result)
+            {
+                foreach (var classType in classCommentInformation.BaseClasses)
+                {
+                    var baseClassCommentInformation = result.First(x => x.ClassType == classType);
+                    classCommentInformation.AddRange(baseClassCommentInformation.Properties);
+                    classCommentInformation.AddRange(baseClassCommentInformation.Methods);
+                }
+            }
+
+            Console.WriteLine(result.FirstOrDefault().Name);
+            result.FirstOrDefault().Properties.ForEach(x => Console.WriteLine(x.Name));
+            result.FirstOrDefault().Methods.ForEach(x => Console.WriteLine(x.Name));
 
             return result;
         }
 
-        /// <summary>
-        /// Analyzes a .cs file with Roslyn
-        /// </summary>
-        public void AnalyzeFile()
+        private IEnumerable<ClassCommentInformation> AnalyzeClass(ClassDeclarationSyntax classSyntax, IEnumerable<MemberDeclarationSyntax> members)
         {
-            GetAllFilesFromDirectory();
-            // C:\Users\PapKate\Documents\PersonalProjects\C#\RoslynCodeAnalyzer\RoslynCodeAnalyzer\MethodCommentInformation.cs
-            var implementationFilePath = Constants.CsFilePath;
+            var result = new List<ClassCommentInformation>();
 
-            // Reads all the text in the file path
-            var implementation = File.ReadAllText(implementationFilePath);
+            // Gets the xml node for the comments
+            var xml = GetXml(classSyntax, classSyntax.Identifier, Constants.ClassTag);
 
-            // Gets the syntax tree
-            var tree = CSharpSyntaxTree.ParseText(implementation);
+            var summaryComments = string.Empty;
 
-            // Gets the tree's root
-            var root = tree.GetCompilationUnitRoot();
-
-            // Gets the tree's members
-            var members = tree.GetRoot().DescendantNodes().OfType<MemberDeclarationSyntax>();
-
-            var classes = new List<ClassCommentInformation>();
-
-            var multipleMethodCommentsData = new List<MethodCommentInformation>();
-
-            var multiplePropertyCommentsData = new List<PropertyCommentInformation>();
-
-            var namespaceName = string.Empty;
-
-            // For each member in members...
-            foreach (var member in members)
+            // If the class has no comments...
+            if (xml == null)
+                // Prints in the out put console a message
+                HelperMethods.MissingSummaryCommentsOutputError(classSyntax.Identifier.ToString(), Constants.ClassTag);
+            // Else...
+            else
             {
-                // If the member is a class...
-                if (member is ClassDeclarationSyntax classSyntax)
+                // Gets the summary comments
+                var summarySyntax = GetSummary(xml, classSyntax.Identifier, Constants.ClassTag);
+
+                // Formats correctly the comments
+                summaryComments = HelperMethods.CleanCommentString(summarySyntax.Content.ToString());
+            }
+
+            // Gets the class' name
+            var className = classSyntax.Identifier.ToString();
+
+            // Searches in the solution and gets the first type with name the class' name
+            var classType = AppDomain.CurrentDomain
+                        .GetAssemblies()
+                        .SelectMany(x => x.GetTypes())
+                        .FirstOrDefault(t => t.Name == className);
+
+            var baseClasses = GetBaseClasses(classType);
+
+            // Creates a new class comment information object
+            var classCommentInformation = new ClassCommentInformation(classType, summaryComments);
+
+            baseClasses.ForEach(x => classCommentInformation.Add(x));
+
+            foreach(var member in members)
+            {
+                if(baseClasses.Count() > 0)
                 {
-                    // Gets the xml node for the comments
-                    var xml = GetXml(classSyntax, classSyntax.Identifier, Constants.ClassTag);
-
-                    var summaryComments = string.Empty;
-
-                    // If the class has no comments...
-                    if (xml == null)
-                        // Prints in the out put console a message
-                        HelperMethods.MissingSummaryCommentsOutputError(classSyntax.Identifier.ToString(), Constants.ClassTag);
-                    // Else...
-                    else
+                    foreach(var baseClass in baseClasses)
                     {
-                        // Gets the summary comments
-                        var summarySyntax = GetSummary(xml, classSyntax.Identifier, Constants.ClassTag);
+                        if (member is ClassDeclarationSyntax classSyntaxT)
+                        {
+                            
+                            var name = classSyntaxT.Identifier.ToString();
+                            var memberType = AppDomain.CurrentDomain
+                                            .GetAssemblies()
+                                            .SelectMany(x => x.GetTypes())
+                                            .FirstOrDefault(t => t.Name == name);
+                            if (memberType.FullName.Contains(baseClass.FullName))
+                            {
+                                result.AddRange(AnalyzeClass(classSyntaxT, members));
+                            }
+                        }
+                        //else if (member is PropertyDeclarationSyntax propertySyntaxT)
+                        //{
+                        //    var name = propertySyntaxT.Identifier.ToString();
 
-                        // Formats correclty the comments
-                        summaryComments = HelperMethods.CleanCommentString(summarySyntax.Content.ToString());
-                    }
-
-                    // Gets the class' name
-                    var className = classSyntax.Identifier.ToString();
-
-                    // Searches in the solution and gets the first type with name the class' name
-                    var classType = AppDomain.CurrentDomain
-                                .GetAssemblies()
-                                .SelectMany(x => x.GetTypes())
-                                .FirstOrDefault(t => t.Name == className);
-
-                    // Creates a new class comment information object
-                    var classCommentInformation = new ClassCommentInformation(classType)
-                    {
-                        Name = className,
-                        Comments = summaryComments
-                    };
-
-                    // Adds to the classes list the class
-                    classes.Add(classCommentInformation);
+                        //    if (propertySyntaxT.Identifier.ToString().Contains(name))
+                        //    {
+                        //        AnalyzeProperty(propertySyntaxT, result);
+                        //    }
+                        //}
+                        //// Else if the member is of type MethodDeclarationSyntax...
+                        //else if (member is MethodDeclarationSyntax methodSyntaxT)
+                        //{
+                        //    var name = methodSyntaxT.Identifier.ToString();
+                        //    if (methodSyntaxT.Identifier.ToString().Contains(name))
+                        //    {
+                        //        AnalyzeMethod(methodSyntaxT, result);
+                        //    }
+                        //}
+                    }    
                 }
             }
 
-            foreach (var member in members)
+            // Adds to the classes list the class
+            result.Add(classCommentInformation);
+
+            // Returns the result
+            return result;
+        }
+
+        /// <summary>
+        /// Gets all the base classes of a class
+        /// </summary>
+        /// <param name="classType">The class type</param>
+        private IEnumerable<Type> GetBaseClasses(Type classType)
+        {
+            var result = new List<Type>();
+
+            // Gets the base type of the given class
+            var baseClass = classType.BaseType;
+            // If the base class is NOT null...
+            if (baseClass != null && baseClass.Name != Constants.ObjectClass)
             {
-                if (member is ClassDeclarationSyntax classSyntax)
+                result.Add(baseClass);
+                // The method calls itself with the base class this time
+                result.AddRange(GetBaseClasses(baseClass));
+            }
+            // Returns the result
+            return result;
+        }
+
+        /// <summary>
+        /// Analyzes a property
+        /// </summary>
+        /// <param name="member"></param>
+        /// <param name="classes"></param>
+        private void AnalyzeProperty(PropertyDeclarationSyntax member, IEnumerable<ClassCommentInformation> classes)
+        {
+            var propertyName = member.Identifier.ToString();
+
+            var propertySummary = string.Empty;
+
+            // A new list for the comments in the property's summary
+            var propertyCommentCrefs = new List<CRef>();
+
+            // Gets the comments above the method
+            var xmlCommentTrivia = member.GetLeadingTrivia().FirstOrDefault(x => x.Kind() == SyntaxKind.SingleLineDocumentationCommentTrivia);
+
+
+            // If there are no comments for the method...
+            if (xmlCommentTrivia == null || xmlCommentTrivia.Token == None)
+            {
+                HelperMethods.MissingSummaryCommentsOutputError(propertyName, Constants.PropertyTag);
+            }
+            else
+            {
+                // Gets the comments' xml structure
+                var xml = xmlCommentTrivia.GetStructure();
+                // Sets as summary the first xml's child of type XmlElementSyntax that has a start tag <summary>
+                var summary = xml.ChildNodes()
+                                .OfType<XmlElementSyntax>()
+                                .FirstOrDefault(i => i.StartTag.Name.ToString().Equals(Constants.SummaryTag));
+                // If there are no summary comments for the method...
+                if (summary == null)
                 {
-                    var xml = GetXml(classSyntax, classSyntax.Identifier, Constants.ClassTag);
-                    var baseClasses = xml.ChildNodes()
-                                    .OfType<XmlElementSyntax>()
-                                    .FirstOrDefault(i => i.GetType() == typeof(BaseListSyntax));
-                    //classes.First(x => x.Name == classSyntax.Identifier.ToString()).Add();
+                    // Prints message to the output console
+                    HelperMethods.MissingSummaryCommentsOutputError(propertyName, Constants.PropertyTag);
                 }
-                else if (member is PropertyDeclarationSyntax propertySyntax)
+                else
                 {
-                    // Gets the xml node
-                    var xml = GetXml(propertySyntax, propertySyntax.Identifier, Constants.PropertyTag);
+                    // Gets the text inside the <summary> </sumarry> area and...
+                    // Filters the string and removes the specified strings
+                    var clean = HelperMethods.CleanCommentString(summary.Content.ToString());
 
-                    // Gets the summary element
-                    var clean = GetSummary(xml, propertySyntax.Identifier, Constants.PropertyTag);
-
-                    // Gets the first child node of type XmlElementSyntax and filter's through it and gets all the cref elements
-                    var list = FilterThroughEmptyElements(xml.ChildNodes().OfType<XmlElementSyntax>().First());
-
-                    // Creates and adds to the multiple properties list a property comment information with...
-                    // Name the property's identifier, 
-                    // Comments the clean version of summary
-                    // CommentCref the list with the cref elements
-                    multiplePropertyCommentsData.Add(new PropertyCommentInformation()
-                    {
-                        Name = propertySyntax.Identifier.ToString(),
-                        Comments = clean.ToString(),
-                        CommentParameters = list
-                    });
+                    // Replaces the multiple spaces with a single one
+                    propertySummary = HelperMethods.CleanStringFromExtraSpaces(clean);
                 }
 
-                // Else if the member is of type MethodDeclarationSyntax...
-                else if (member is MethodDeclarationSyntax methodSyntax)
+                // Creates a new property comment information
+                var propertyCommentInformation = new PropertyCommentInformation(propertyName, propertySummary);
+
+                propertyCommentCrefs = GetCRefFromParent(summary, propertyCommentInformation);
+
+                // Sets as comment crefs the crefs found before 
+                propertyCommentInformation.CommentCrefs = propertyCommentCrefs;
+
+                // Finds the first class that its name the property's full name contains and...
+                classes.First(x => member.Identifier.ToFullString().Contains(x.ClassType.FullName))
+                                    // Adds the property comment info to its properties' list
+                                    .Add(propertyCommentInformation);
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="member"></param>
+        /// <param name="classes"></param>
+        private void AnalyzeMethod(MethodDeclarationSyntax member, IEnumerable<ClassCommentInformation> classes)
+        {
+            // Sets as the method's name the member's identifier
+            var methodName = member.Identifier.ToString();
+
+            var methodSummary = string.Empty;
+
+            // Gets the comments above the method
+            var xmlCommentTrivia = member.GetLeadingTrivia().FirstOrDefault(x => x.Kind() == SyntaxKind.SingleLineDocumentationCommentTrivia);
+
+
+            // If there are no comments for the method...
+            if (xmlCommentTrivia == null || xmlCommentTrivia.Token == None)
+            {
+                HelperMethods.MissingSummaryCommentsOutputError(methodName, Constants.MethodTag);
+            }
+            else
+            {
+                // Gets the comments' xml structure
+                var xml = xmlCommentTrivia.GetStructure();
+                // Sets as summary the first xml's child of type XmlElementSyntax that has a start tag <summary>
+                var summary = xml.ChildNodes()
+                                .OfType<XmlElementSyntax>()
+                                .FirstOrDefault(i => i.StartTag.Name.ToString().Equals(Constants.SummaryTag));
+                // If there are no summary comments for the method...
+                if (summary == null)
                 {
-                    // Gets the xml node
-                    var xml = GetXml(methodSyntax, methodSyntax.Identifier, Constants.MethodTag);
+                    // Prints message to the output console
+                    HelperMethods.MissingSummaryCommentsOutputError(methodName, Constants.MethodTag);
+                }
+                else
+                {
+                    // Gets the text inside the <summary> </sumarry> area and...
+                    // Filters the string and removes the specified strings
+                    var clean = HelperMethods.CleanCommentString(summary.Content.ToString());
 
-                    if (xml == null)
-                        continue;
+                    // Replaces the multiple spaces with a single one
+                    methodSummary = HelperMethods.CleanStringFromExtraSpaces(clean);
 
-                    // Gets the summary element
-                    var summary = GetSummary(xml, methodSyntax.Identifier, Constants.MethodTag);
-
-                    if (summary == null)
-                        continue;
-
-                    var methodCommentsData = new MethodCommentInformation()
-                    {
-                        Name = methodSyntax.Identifier.ToString(),
-                        Comments = GetSummaryComments(summary)
-                    };
+                    // Creates a new method comment information with name the methodName and summary comments the summary
+                    var methodCommentInformation = new MethodCommentInformation(methodName, methodSummary);
 
                     // Gets all the child nodes the have the start tag <param> and adds them to a list
                     var allParamNameAttributes = xml.ChildNodes().OfType<XmlElementSyntax>()
@@ -191,15 +327,13 @@ namespace RoslynCodeAnalyzer
                     // If no comments for parameters is found...
                     if (allParamNameAttributes.Count == 0
                         // And the actual method has parameters...
-                        && methodSyntax.ParameterList.Parameters.Count != 0)
+                        && member.ParameterList.Parameters.Count != 0)
                     {
                         // Prints message to the output console
-                        HelperMethods.MissingParamCommentsOutputError(methodSyntax.Identifier.ToString());
-                        // Returns
-                        continue;
+                        HelperMethods.MissingParamCommentsOutputError(methodName);
                     }
 
-                    var paramDataList = new List<ParameterCommentInformation>();
+                    var tempParameters = new List<ParameterCommentInformation>();
 
                     // For each parameter data in allParamNameAttributes...
                     foreach (var paramData in allParamNameAttributes)
@@ -215,33 +349,25 @@ namespace RoslynCodeAnalyzer
 
                         // Gets the parameter's type as string
                         // TODO: fix -> get type
-                        var parameterType = methodSyntax.ParameterList.Parameters.First(x => x.Identifier.ToString() == parameterName)
+                        var parameterType = member.ParameterList.Parameters.First(x => x.Identifier.ToString() == parameterName)
                                                                                         .Type.GetText();
 
                         // Creates and adds to the list the parameter data
-                        paramDataList.Add(new ParameterCommentInformation()
-                        {
-                            Name = parameterName,
-                            Comments = cleanParamComments,
-                            XmlElement = paramData
-                        });
+                        tempParameters.Add(new ParameterCommentInformation(parameterName, cleanParamComments));
+
+                        // Sets as the parameters of the comments data as the paramDataList
+                        methodCommentInformation.Parameters = tempParameters;
+
+                        methodCommentInformation.SummaryCommentParameters = GetParamRefsFromMethodSummary(summary, tempParameters);
+
+                        methodCommentInformation.SummaryCommentCRefs = GetCRefFromParent(summary, methodCommentInformation);
+
+                        // Finds the first class that its name the method's full name contains and...
+                        classes.First(x => member.Identifier.ToFullString().Contains(x.Name))
+                                            // Adds the method comment info to its methods' list
+                                            .Add(methodCommentInformation);
                     }
-
-                    paramDataList.ForEach(x => x.CommentParameters = FilterThroughEmptyElements(x.XmlElement, paramDataList));
-
-                    // Sets as the parameters of the comments data as the paramDataList
-                    methodCommentsData.Parameters = paramDataList;
-
-                    methodCommentsData.SummaryCommentParameters = FilterThroughEmptyElements(summary, paramDataList);
-
-                    // Adds to the methodCommentsData the commentsData
-                    multipleMethodCommentsData.Add(methodCommentsData);
                 }
-            }
-
-            foreach (var methodData in multipleMethodCommentsData)
-            {
-                Console.WriteLine($"Method Name : {methodData.Name}\nSummary : {methodData.Summary}\n");
             }
         }
 
@@ -321,7 +447,7 @@ namespace RoslynCodeAnalyzer
         /// </summary>
         /// <param name="summary">The summary</param>
         /// <param name="parameterComments"></param>
-        public List<ParameterCommentInformation> FilterThroughEmptyElements(XmlElementSyntax summary, List<ParameterCommentInformation> parameterComments)
+        public List<ParameterCommentInformation> GetParamRefsFromMethodSummary(XmlElementSyntax summary, List<ParameterCommentInformation> parameterComments)
         {
             // Gets the empty elements of the summary
             var emptyElements = summary.ChildNodes().OfType<XmlEmptyElementSyntax>().ToList();
@@ -332,30 +458,15 @@ namespace RoslynCodeAnalyzer
             // For each empty element found in summary...
             foreach (var emptyElement in emptyElements)
             {
-                // Gets the empty element of type Cref attribute syntax if exists...
-                var cref = emptyElement.ChildNodes().OfType<XmlCrefAttributeSyntax>().FirstOrDefault()
-                    // Then the child node of type member Cref...
-                    ?.ChildNodes().OfType<NameMemberCrefSyntax>().First()
+                // Gets the empty element's child node of type Name attribute if exists...
+                var paramref = emptyElement.ChildNodes().OfType<XmlNameAttributeSyntax>().FirstOrDefault()
                     // Then the child node of type Identifier name 
-                    .ChildNodes().OfType<IdentifierNameSyntax>().First();
+                    ?.ChildNodes().OfType<IdentifierNameSyntax>().First();
 
-                // If a cref node exists...
-                if (cref != null)
-                    // Adds to the summary comments parameters a new parameterCommentsInformation with name the cref's identifier
-                    summaryCommentParameters.Add(new ParameterCommentInformation() { Name = cref.Identifier.ToString() });
-                // Else...
-                else
-                {
-                    // Gets the empty element's child node of type Name attribute if exists...
-                    var paramref = emptyElement.ChildNodes().OfType<XmlNameAttributeSyntax>().FirstOrDefault()
-                        // Then the child node of type Identifier name 
-                        ?.ChildNodes().OfType<IdentifierNameSyntax>().First();
-
-                    // If a param ref exists...
-                    if (paramref != null)
-                        // Adds to the summary comments parameters a new parameterCommentsInformation with name the param ref's identifier
-                        summaryCommentParameters.Add(parameterComments.First(x => x.Name == paramref.Identifier.ToString()));
-                }
+                // If a param ref exists...
+                if (paramref != null)
+                    // Adds to the summary comments parameters a new parameterCommentsInformation with name the param ref's identifier
+                    summaryCommentParameters.Add(parameterComments.First(x => x.Name == paramref.Identifier.ToString()));
             }
 
             return summaryCommentParameters;
@@ -365,13 +476,14 @@ namespace RoslynCodeAnalyzer
         /// Filters through summary and gets the empty elements
         /// </summary>
         /// <param name="summary">The summary</param>
-        public List<ParameterCommentInformation> FilterThroughEmptyElements(XmlElementSyntax summary)
+        /// <param name="parent">The parent</param>
+        public List<CRef> GetCRefFromParent(XmlElementSyntax summary, BaseCommentInformation parent)
         {
             // Gets the empty elements of the summary
             var emptyElements = summary.ChildNodes().OfType<XmlEmptyElementSyntax>().ToList();
 
             // New List
-            var summaryCommentParameters = new List<ParameterCommentInformation>();
+            var summaryCommentParameters = new List<CRef>();
 
             // For each empty element found in summary...
             foreach (var emptyElement in emptyElements)
@@ -381,12 +493,12 @@ namespace RoslynCodeAnalyzer
                     // Then the child node of type member Cref...
                     ?.ChildNodes().OfType<NameMemberCrefSyntax>().First()
                     // Then the child node of type Identifier name 
-                    .ChildNodes().OfType<IdentifierNameSyntax>().First();
+                    ?.ChildNodes().OfType<IdentifierNameSyntax>().First();
 
                 // If a cref node exists...
                 if (cref != null)
                     // Adds to the summary comments parameters a new parameterCommentsInformation with name the cref's identifier
-                    summaryCommentParameters.Add(new ParameterCommentInformation() { Name = cref.Identifier.ToString() });
+                    summaryCommentParameters.Add(new CRef(cref.Identifier.ToString(), parent));
             }
 
             return summaryCommentParameters;
@@ -395,15 +507,17 @@ namespace RoslynCodeAnalyzer
         /// <summary>
         /// 
         /// </summary>
-        public void GetAllFilesFromDirectory()
+        public List<MemberDeclarationSyntax> GetAllFilesFromDirectory(string directoryPath)
         {
-            var directoryInfo = new DirectoryInfo(@"C:\Users\PapKate\Documents\PersonalProjects\C#\RoslynCodeAnalyzer\RoslynCodeAnalyzer");
+            var directoryInfo = new DirectoryInfo(directoryPath);
 
             var assemblyFile = directoryInfo.GetFiles("*.cs", SearchOption.AllDirectories).First(x => x.Name == "AssemblyInfo.cs");
 
             var netFile = directoryInfo.GetFiles("*.cs", SearchOption.AllDirectories).First(x => x.Name.Contains("NETFramework"));
 
             var files = directoryInfo.GetFiles("*.cs", SearchOption.AllDirectories);
+
+            var members = new List<MemberDeclarationSyntax>();
 
             foreach (var file in directoryInfo.GetFiles("*.cs", SearchOption.AllDirectories))
             {
@@ -419,14 +533,9 @@ namespace RoslynCodeAnalyzer
                 var root = tree.GetCompilationUnitRoot();
 
                 // Gets the tree's members
-                var members = tree.GetRoot().DescendantNodes().OfType<MemberDeclarationSyntax>();
-                Console.WriteLine(file.Name);
+                members.AddRange(tree.GetRoot().DescendantNodes().OfType<MemberDeclarationSyntax>());
             }
-        }
-
-        public void Analyze(IEnumerable<Type> types, string directoryPath)
-        {
-            throw new NotImplementedException();
+            return members;
         }
 
         #endregion

@@ -17,6 +17,11 @@
         /// </summary>
         public const string XmlFilePath = @"C:\Users\PapKate\Documents\PersonalProjects\C#\RoslynCodeAnalyzer\RoslynCodeAnalyzer\RoslynCodeAnalyzer.xml";
 
+        /// <summary>
+        /// The directory path
+        /// </summary>
+        public const string DirectoryPath = @"C:\Users\PapKate\Documents\PersonalProjects\C#\RoslynCodeAnalyzer\RoslynCodeAnalyzer";
+
         #endregion
 
         #region Xml Members
